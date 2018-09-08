@@ -1,9 +1,9 @@
 <?php
+
+use Bookstore\Domain\customer;
+use Bookstore\Domain\Book;
 require_once __DIR__.'/Book.php';
 require_once __DIR__.'/Customer.php';
-
-// use bookstore\customer;
-// use bookstore\Book;
 
 $book = new Book(16578901,"River Between", "James Thiongo", 1);
 $customer = new Customer(1, "James", "Karuku", "karuku@gmail.com");
