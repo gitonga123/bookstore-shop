@@ -31,6 +31,7 @@ class Person
 	{
 		return $this->surname;
 	}
+	
 }
 
 ?>

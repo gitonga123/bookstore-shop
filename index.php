@@ -23,7 +23,15 @@ function checkIfValid(Customer $customer, array $books): bool {
 	return $customer->getAmountToBorrow() >= count($books);
 }
 
-$customer1 = new Basic(5, 'John', 'Doe', 'johndoe@mail.com');
-echo (checkIfValid($customer1, $book1));
+try {
+	$customer1 = new Basic(2, 'John', 'Doe', 'johndoe@mail.com');
+} catch (Exception $e) {
+	echo "something happened when creating the basic customer: " . $e->getMessage();
+}
+
+$customer1->createBasicCustomer(1);
+$customer1->createBasicCustomer(-1);
+
+echo $customer1->getId();
 
 ?>
