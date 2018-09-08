@@ -2,9 +2,19 @@
 
 use Bookstore\Domain\customer;
 use Bookstore\Domain\Book;
-require_once __DIR__.'/Book.php';
-require_once __DIR__.'/Customer.php';
+// require_once __DIR__.'/Book.php';
+// require_once __DIR__.'/Customer.php';
 
+function autoloader($classname)
+{
+	$lastSlash = strpos($classname, '\\') + 1;
+	$classname = substr($classname, $lastSlash);
+	$directory = str_replace('\\', '/', $classname);
+	$filename = __DIR__.'/src/'.$directory.".php";
+
+	require_once($filename);
+}
+spl_autoload_register('autoloader');
 $book = new Book(16578901,"River Between", "James Thiongo", 1);
 $customer = new Customer(1, "James", "Karuku", "karuku@gmail.com");
 $customer1 = new Customer(3, 'John', 'Doe', 'johndoe@mail.com');
