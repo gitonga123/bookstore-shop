@@ -20,8 +20,6 @@ class Customer extends Person
 				self::$lastId = $id;
 			}
 		}
-		$this->firstname = $firstname;
-		$this->surname = $surname;
 		$this->email = $email;
 	}
 	
@@ -40,9 +38,6 @@ class Customer extends Person
 	{
 		$this->email = $email;
 	}
-
-
-	
 }
 
 ?>

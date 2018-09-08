@@ -1,5 +1,5 @@
 <?php 
-
+namespace Bookstore\Domain;
 /**
  * person's class
  * defines the properties and methods of a person in the system
