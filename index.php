@@ -3,6 +3,7 @@
 use Bookstore\Domain\Customer;
 use Bookstore\Domain\Customer\Basic;
 use Bookstore\Domain\Book;
+use Bookstore\Utils\config;
 
 
 function autoloader($classname)
@@ -34,4 +35,6 @@ $customer1->createBasicCustomer(-1);
 
 echo $customer1->getId();
 
+$config = Config::getInstance()->get('db');
+var_dump($dbConfig);
 ?>
