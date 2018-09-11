@@ -1,5 +1,6 @@
 <?php
 namespace Bookstore\Exceptions;
+
 use Exceptions;
 
 /**
@@ -8,5 +9,3 @@ use Exceptions;
 class NotFoundExceptions extends Exceptions
 {
 }
-
-?>
