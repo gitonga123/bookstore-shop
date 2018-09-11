@@ -48,35 +48,59 @@ $db = new PDO(
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 //performing queries PDO
-$rows = $db->query('SELECT * FROM book ORDER BY title');
+// $rows = $db->query('SELECT * FROM book ORDER BY title');
 
-$query = <<<SQL
-INSERT INTO book (isbn, title, author, price)
-VALUES ("9788187981954", "Peter Pan", "J. M. Barrie", 2.34)
-SQL;
+// $query = <<<SQL
+// INSERT INTO book (isbn, title, author, price)
+// VALUES ("9788187981954", "Peter Pan", "J. M. Barrie", 2.34)
+// SQL;
 // $result = $db->exec($query);
 // var_dump($result);
 // $error = $db->errorInfo();
 // var_dump($error);
 // Prepared Statement
-$query = 'SELECT * FROm book WHERE author = :author';
-$statement = $db->prepare($query);
-$statement->bindValue('author', 'George Orwell');
-$statement->execute();
+// $query = 'SELECT * FROm book WHERE author = :author';
+// $statement = $db->prepare($query);
+// $statement->bindValue('author', 'George Orwell');
+// $statement->execute();
 
-$rows = $statement->fetchAll();
-var_dump($rows);
+// $rows = $statement->fetchAll();
+// var_dump($rows);
 
-$query = <<<SQL
-INSERT INTO book (isbn, title, author, price)
-VALUES (:isbn, :title, :author, :price)
-SQL;
-$statement = $db->prepare($query);
-$params = [
-    'isbn' => '1567839001',
-    'title' => 'Home Alone',
-    'author' => 'Alision Backer',
-    'price' => 9.25
-];
-$statement->execute($params);
-var_dump($db->lastInsertId());
+// $query = <<<SQL
+// INSERT INTO book (isbn, title, author, price)
+// VALUES (:isbn, :title, :author, :price)
+// SQL;
+// $statement = $db->prepare($query);
+// $params = [
+//     'isbn' => '1567839001',
+//     'title' => 'Home Alone',
+//     'author' => 'Alision Backer',
+//     'price' => 9.25
+// ];
+// $statement->execute($params);
+// var_dump($db->lastInsertId());
+
+//Working with transactions
+$db->beginTransaction();
+try {
+    $query = 'INSERT INTO sale (customer_id, date) VALUES (:id, NOW())';
+    $statement = $db->prepare($query);
+    if (!$statement->execute(['id' => $userId])) {
+        throw new Exception($statement->errorInfo()[2]);
+    }
+    $saleId = $db->lastInsertId();
+    $query = 'INSERT INTO sale_book (book_id, sale_id) VALUES(:book, :sale)';
+    $statement = $db->prepare($query);
+    $statement->bindValue('sale', $saleId);
+    foreach ($booksId as $bookId) {
+        $statement-bindValue('book', $bookId);
+        if (!$statement->execute()) {
+            throw new Exception($statement->errorInfo()[2]);
+        }
+    }
+    $db->commit();
+} catch (Exception $e) {
+      $db->rollBack();
+      throw $e;
+}
