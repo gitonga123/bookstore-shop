@@ -25,7 +25,7 @@ class Config
 		return self::$instance;
 	}
 
-	public static function get($key)
+	public function get($key)
 	{
 		if (!isset($this->data[$key])) {
 			throw new NotFoundException("Key $key not in config.");

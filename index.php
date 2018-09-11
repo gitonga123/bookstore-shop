@@ -30,11 +30,11 @@ try {
 	echo "something happened when creating the basic customer: " . $e->getMessage();
 }
 
-$customer1->createBasicCustomer(1);
-$customer1->createBasicCustomer(-1);
+// $customer1->createBasicCustomer(1);
+// $customer1->createBasicCustomer(-1);
 
 echo $customer1->getId();
 
 $config = Config::getInstance()->get('db');
-var_dump($dbConfig);
+var_dump($config);
 ?>
