@@ -34,7 +34,20 @@ try {
 // $customer1->createBasicCustomer(-1);
 
 echo $customer1->getId();
-
+//get an instance of the database connection
+//improvements comming soon
 $config = Config::getInstance()->get('db');
-var_dump($config);
+
+$db = new PDO(
+	'mysql:host=127.0.0.1;dbname=booksore',
+	$config['user'],
+	$config['password']
+);
+$db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+//performing queries PDO
+$rows = db->query('SELECT * FROM book ORDER BY title');
+foreach ($rows as $row) {
+	var_dump($row);
+}
 ?>
