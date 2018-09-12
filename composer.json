@@ -1,6 +1,22 @@
 {
+	"name": "danielmutwiri/bookstore",
+	"description": "Manages an online bookstore",
+	"minimum-stability": "stable",
+	"license": "Apache-2.0",
+	"type": "project",
+	"authors": [
+		{
+			"name": "Daniel Mutwiri",
+			"email": "mutwiridanielsci@gamil.com"
+		}
+	],
     "require": {
         "monolog/monolog": "^1.23",
         "twig/twig": "^2.5"
+    },
+    "autoload": {
+    	"psr-4": {
+    		"Bookstore\\": "src"
+    	}
     }
 }
