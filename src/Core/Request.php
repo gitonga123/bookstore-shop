@@ -51,4 +51,3 @@ class Request
 		return $this->method === self::GET;
 	}
 }
-?>
