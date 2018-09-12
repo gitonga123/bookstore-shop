@@ -13,12 +13,18 @@ class Request
     private $domain;
     private $path;
     private $method;
+    private $params;
+    private $cookies;
 
     public function __construct()
     {
         $this->domain = $_SERVER['HTTP_HOST'];
         $this->path = $_SERVER['REQUEST_URI'];
         $this->method = $_SERVER['REQUEST_METHOD'];
+        $this->params = new FilteredMap(
+            array_merge($_POST, $_GET)
+        );
+        $this->cookies = new FilteredMap($_COOKIE);
     }
 
     public function getUrl(): string
@@ -49,5 +55,15 @@ class Request
     public function isGet(): bool
     {
         return $this->method === self::GET;
+    }
+
+    public function getParams(): FilteredMap
+    {
+        return $this->params;
+    }
+
+    public function getCookies(): FilteredMap
+    {
+        return $this->cookies;
     }
 }
