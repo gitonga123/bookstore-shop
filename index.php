@@ -39,7 +39,7 @@ echo $customer1->getId();
 $config = Config::getInstance()->get('db');
 
 $db = new PDO(
-    'mysql:host=127.0.0.1;dbname=booksore',
+    'mysql:host=127.0.0.1;dbname=bookstore',
     $config['user'],
     $config['password']
 );
