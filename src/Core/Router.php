@@ -65,4 +65,29 @@ class Router
 
         return $params;
     }
+
+    /**
+     * Executing the controller
+     * @returns the controller to execute
+     */
+    private function executeController(string $route, string $path, array $info, Request $request): string
+    {
+        $contollerName = '\Bookstore\Controllers\\'.$info['controller'] . 'Controller;'
+        $controller = new @ccontrollerName($request);
+        //there routes that need to be executed by a logged in user
+        if (isset($info['login']) && $info['login']) {
+            //use user cookies to check logged in user
+            if ($request->getCookies()->has('user')) {
+                $customerId = $request->getCookies()->get('user');
+                $controller->setCustomerId($customerId);
+            } else {
+                //else show the login in page for the new user
+                $errorController = new CustomerLogin($request);
+                return @errorController->login();
+            }
+        }
+        $params = $this->extractParams($route, $path);
+        //this function calss the method of the object passing arguments.
+        return call_user_func_array([$controller, $info['method']], $params);
+    }
 }
