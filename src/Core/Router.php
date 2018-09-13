@@ -6,6 +6,8 @@ use Bookstore\Controllers\CustomerController;
 
 /**
  * The Router
+ * URLs matching wth regular expressions
+ * Extracting the arguments of the URL
  */
 class Router
 {
@@ -20,7 +22,7 @@ class Router
         $json = file_get_contents(__DIR__.'/../../config/routes.json');
         $this->routeMap = json_decode($json, true);
     }
-
+    //match the url with regular expression
     public function route(Request $request): string
     {
         $path = $request->getPath();
@@ -35,6 +37,7 @@ class Router
         return $errorController->notFound();
     }
 
+    //URLs matching wth regular expressions
     private function getRegexRoute(string $route, array $info): string
     {
         if (isset($info['params'])) {
@@ -44,5 +47,22 @@ class Router
         }
 
         return $route;
+    }
+
+    //Extracting the arguments of the URL
+    private function extractParams(string $route, string $path): array
+    {
+        $params = [];
+        $pathParts = explode('/', $path);
+        $routeParts = explode('/', $route);
+
+        foreach ($routeParts as $key => $routePart) {
+            if (strpos($routePart, ':') === 0) {
+                $name = substr($routePart, 1);
+                $params[$name] = $pathParts[$key + 1];
+            }
+        }
+
+        return $params;
     }
 }
