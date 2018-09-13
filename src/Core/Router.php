@@ -34,4 +34,15 @@ class Router
         $errorController = new ErrorController($request);
         return $errorController->notFound();
     }
+
+    private function getRegexRoute(string $route, array $info): string
+    {
+        if (isset($info['params'])) {
+            foreach ($info['params'] as $name => $type) {
+                $route = str_replace(':', $name, self::$rexPatters[$type], $route);
+            }
+        }
+
+        return $route;
+    }
 }
