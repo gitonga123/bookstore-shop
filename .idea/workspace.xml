@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5a4847dc-4aeb-4201-8ac9-eae8379be375" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Utils/Unique.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Domain/Customer/CustomerFactory.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/init.php" beforeDir="false" afterPath="$PROJECT_DIR$/init.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Domain/Person.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/Person.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -28,13 +26,13 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="json" value="1" />
-          <entry key="php" value="14" />
+          <entry key="php" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="JSON" value="1" />
-          <entry key="PHP" value="14" />
+          <entry key="PHP" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.php.composer.actions">
@@ -44,12 +42,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="php" value="4143" />
+          <entry key="php" value="4479" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PHP" value="4141" />
+          <entry key="PHP" value="4477" />
           <entry key="SQL" value="2" />
         </counts>
       </usages-collector>
@@ -60,14 +58,14 @@
       <usages-collector id="statistics.vcs.git.usages" />
       <usages-collector id="statistics.php.new.class">
         <counts>
-          <entry key="PHP Class.type" value="4" />
+          <entry key="PHP Class.type" value="5" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/init.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="296">
@@ -75,6 +73,15 @@
               <folding>
                 <element signature="e#7#37#0#PHP" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Domain/Customer/CustomerFactory.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="330">
+              <caret line="27" column="38" lean-forward="true" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -158,6 +165,7 @@
         <option value="$PROJECT_DIR$/src/Utils/Unique.php" />
         <option value="$PROJECT_DIR$/src/Domain/Person.php" />
         <option value="$PROJECT_DIR$/init.php" />
+        <option value="$PROJECT_DIR$/src/Domain/Customer/CustomerFactory.php" />
       </list>
     </option>
   </component>
@@ -270,10 +278,11 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9679000" />
+    <option name="totallyTimeSpent" value="10399000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="826" y="25" width="774" height="875" extended-state="4" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2802198" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -409,6 +418,13 @@
           <folding>
             <element signature="e#7#37#0#PHP" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Domain/Customer/CustomerFactory.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="27" column="38" lean-forward="true" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
         </state>
       </provider>
     </entry>
