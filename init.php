@@ -26,4 +26,6 @@ function checkIfValid(Customer $customer, array $books): bool
 }
 $customer1 = new Basic(5, 'John', 'Doe', 'johndoe@mail.com');
 $customer2 = new Premium(7, 'James', 'Bond', 'james@bond.com');
- var_dump($customer1 instanceof Basic);
+var_dump($customer1 instanceof Basic);
+var_dump($customer1 instanceof Premium);
+var_dump($customer2 instanceof Premium);
