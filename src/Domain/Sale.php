@@ -8,7 +8,6 @@
 
 namespace Bookstore\Domain;
 
-
 class Sale
 {
     private $id;
@@ -48,7 +47,7 @@ class Sale
     /**
      * @param mixed $books
      */
-    public function setBooks( array $books)
+    public function setBooks(array $books)
     {
         $this->books = $books;
     }
@@ -84,5 +83,4 @@ class Sale
         }
         $this->books[$bookId] += $amount;
     }
-
 }
