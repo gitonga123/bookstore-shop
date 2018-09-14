@@ -29,3 +29,7 @@ $customer2 = new Premium(7, 'James', 'Bond', 'james@bond.com');
 var_dump($customer1 instanceof Basic);
 var_dump($customer1 instanceof Premium);
 var_dump($customer2 instanceof Premium);
+var_dump($customer1 instanceof Customer);
+var_dump($customer2 instanceof Customer);
+var_dump($customer1 instanceof \Bookstore\Domain\Payer);
+var_dump($customer1 instanceof \Bookstore\Domain\Person);
