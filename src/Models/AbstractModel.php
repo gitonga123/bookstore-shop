@@ -6,7 +6,7 @@ use PDO;
 
 /**
  * All Models to extend this class.
- * Class contain a $db protected proprty that will be set on the constructor.
+ * Class contain a $db protected property that will be set on the constructor.
  * 
  */
 
