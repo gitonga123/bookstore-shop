@@ -1,5 +1,6 @@
 <?php
 namespace Bookstore\Domain;
+use Bookstore\Utils\Unique;
 
 /**
  * person's class
@@ -7,9 +8,9 @@ namespace Bookstore\Domain;
  */
 class Person
 {
+    use Unique;
     protected $firstname;
     protected $surname;
-    private  static $lastId = 0;
     protected $id;
     protected $email;
 
@@ -18,14 +19,7 @@ class Person
         $this->firstname = $firstname;
         $this->surname = $surname;
         $this->email = $email;
-        if (empty($id)) {
-            $this->id = ++self::$lastId;
-        } else {
-            $this->id = $id;
-            if ($id > self::$lastId) {
-                self::$lastId = $id;
-            }
-        }
+        $this->setId($id);
     }
 
     public function getFirstName() : string

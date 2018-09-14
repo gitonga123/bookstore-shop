@@ -5,6 +5,8 @@ use Bookstore\Domain\Customer\Basic;
 use Bookstore\Domain\Customer\Premium;
 use Bookstore\Domain\Book;
 use Bookstore\Utils\Config;
+use Bookstore\Domain\Payer;
+use Bookstore\Domain\Person;
 
 function autoloader($classname)
 {
@@ -31,5 +33,9 @@ var_dump($customer1 instanceof Premium);
 var_dump($customer2 instanceof Premium);
 var_dump($customer1 instanceof Customer);
 var_dump($customer2 instanceof Customer);
-var_dump($customer1 instanceof \Bookstore\Domain\Payer);
-var_dump($customer1 instanceof \Bookstore\Domain\Person);
+var_dump($customer1 instanceof Payer);
+var_dump($customer1 instanceof Person);
+var_dump($customer1::getLastId());
+var_dump($customer2::getLastId());
+
+
