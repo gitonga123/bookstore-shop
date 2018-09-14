@@ -9,10 +9,23 @@ class Person
 {
     protected $firstname;
     protected $surname;
-    public function __construct(string $firstname, string $surname)
+    private  static $lastId = 0;
+    protected $id;
+    protected $email;
+
+    public function __construct(string $firstname, string $surname,int $id, string $email)
     {
         $this->firstname = $firstname;
         $this->surname = $surname;
+        $this->email = $email;
+        if (empty($id)) {
+            $this->id = ++self::$lastId;
+        } else {
+            $this->id = $id;
+            if ($id > self::$lastId) {
+                self::$lastId = $id;
+            }
+        }
     }
 
     public function getFirstName() : string
@@ -25,13 +38,27 @@ class Person
         return $this->surname;
     }
 
-    public function setFirstName(string $firstname)
+    /**
+     * @return string
+     */
+    public function getEmail(): string
     {
-        return $this->firstname;
+        return $this->email;
     }
 
-    public function setSurname(string $surname)
+    /**
+     * @return int
+     */
+    public static function getLastId(): int
     {
-        return $this->surname;
+        return self::$lastId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 }
