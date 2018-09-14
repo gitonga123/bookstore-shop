@@ -6,20 +6,19 @@ namespace Bookstore\Domain;
  */
 class Book
 {
+    private $id;
     private $isbn;
     private $title;
     private $author;
-    private $available;
+    private $stock;
+    private $price;
 
-    public function __construct(int $isbn, string $title, string $author, int $available = 0)
+    public function getId(): int
     {
-        $this->isbn =  $isbn;
-        $this->title =  $title;
-        $this->author =  $author;
-        $this->available =  $available;
+        return $this->isbn;
     }
 
-    public function getIsbn(): int
+    public function getIsbn(): string
     {
         return $this->isbn;
     }
@@ -34,53 +33,28 @@ class Book
         return $this->author;
     }
 
-    public function isAvailable(): bool
+    public function getStock(): int
     {
-        return $this->available;
+        return $this->stock;
     }
 
-    public function setIsbn(int $isbn)
+    public function getPrice(): float
     {
-        $this->isbn = $isbn;
-    }
-
-    public function setTitle(string $title)
-    {
-        $this->title = $title;
-    }
-
-    public function setAuthor(string $author)
-    {
-        $this->author = $author;
-    }
-
-    public function setCopy(int $available)
-    {
-        $this->available = $available;
-    }
-
-
-    public function getPrinterableTitle(): string
-    {
-        $result = '<i>' . $this->title . '</i> - ' . $this->author;
-        if (!$this->available) {
-             $result .= ' <b> Not available </b>';
-        }
-        return $result;
+        return $this->price;
     }
 
     public function getCopy(): bool
     {
-        if ($this->available < 1) {
+        if ($this->stock < 1) {
              return false;
         } else {
-            $this->available--;
+            $this->stock--;
             return true;
         }
     }
 
     public function addCopy()
     {
-        $this->available++;
+        $this->stock++;
     }
 }
