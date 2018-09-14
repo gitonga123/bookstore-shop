@@ -12,7 +12,7 @@ use PDO;
 
 abstract class AbstractModel
 {
-	private $db;
+	protected $db;
 
 	public function __constructor(PDO $db)
 	{

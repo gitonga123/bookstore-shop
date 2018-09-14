@@ -7,7 +7,7 @@ use Exception;
 /**
  * This class handles errors from the database
  */
-class DbException extends EXceptions
+class DbException extends Exception
 {
 }
 ?>

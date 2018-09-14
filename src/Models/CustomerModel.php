@@ -21,9 +21,9 @@ class CustomerModel extends AbstractModel
 	{
         $query = 'SELECT * FROM customer WHERE customer_id = :user';
         $sth = $this->db->prepare($query);
-        $sth->execute(['user'] => $userId);
+        $sth->execute(['user' => $userId]);
 
-        $row = $ath->fetch();
+        $row = $sth->fetch();
 
         if (empty($row)) {
         	throw new NotFoundException();
@@ -43,13 +43,13 @@ class CustomerModel extends AbstractModel
 	 * @param user email
 	 * @return array as customer details
 	 */
-	public function get(int $email): Customer
+	public function getUser(int $email): Customer
 	{
         $query = 'SELECT * FROM customer WHERE email = :user';
         $sth = $this->db->prepare($query);
-        $sth->execute(['user'] => $email);
+        $sth->execute(['user' => $email]);
 
-        $row = $ath->fetch();
+        $row = $sth->fetch();
 
         if (empty($row)) {
         	throw new NotFoundException();
