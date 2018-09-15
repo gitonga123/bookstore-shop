@@ -1,11 +1,12 @@
 <?php
 namespace Bookstore\Exceptions;
-use Exceptions;
+
+use Exception;
 
 /**
  * NotFoundExceptions class
  */
-class NotFoundExceptions extends Exceptions
+class NotFoundExceptions extends Exception
 {
 }
 
