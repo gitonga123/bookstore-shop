@@ -1,5 +1,7 @@
 <?php
+
 namespace Bookstore\Domain;
+
 use Bookstore\Utils\Unique;
 
 /**
