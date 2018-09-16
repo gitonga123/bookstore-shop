@@ -8,6 +8,7 @@
 
 namespace Bookstore\Utils;
 
+use Bookstore\Exceptions\InvalidIdException;
 
 trait Unique
 {
@@ -19,6 +20,9 @@ trait Unique
      */
     public function setId($id): void
     {
+        if ($id < 0) {
+            throw new InvalidIdException("ID cannot be a negative number.");
+        }
         if (empty($id)) {
             $this->id = ++self::$lastId;
         } else {

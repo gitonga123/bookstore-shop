@@ -7,6 +7,7 @@ use Bookstore\Domain\Book;
 use Bookstore\Utils\Config;
 use Bookstore\Domain\Payer;
 use Bookstore\Domain\Person;
+use Bookstore\Exceptions\InvalidIdException;
 
 function autoloader($classname)
 {
@@ -42,3 +43,20 @@ $customer1 = Customer\CustomerFactory::factory('premium',2,'Mary', 'Hawkins', 'm
 
 var_dump($customer->getType());
 var_dump($customer1->getType());
+
+//Anonymous function/ lambda functions
+$addTaxes = function (array &$book, $index, $percentage ) {
+	$book['price'] += round($percentage * $book['price'], 2);
+}
+
+$books = [
+    ['title' => '1984', 'price' => 8.15],
+    ['title' => 'Don Quijote', 'price' => 12.00],
+    ['title' => 'Odyssey', 'price' => 3.55]
+];
+
+foreach ($books as $index => $book) {
+	addTaxes($book, $index, 0.16);
+}
+
+var_dump($books);
