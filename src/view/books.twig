@@ -1,0 +1,31 @@
+{% extends 'layout.twig' %}
+{% block title %}
+    Books
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <table class="table table-condensed">
+            <thead>
+                <th>Title</th>
+                <th>Author</th>
+                <th></th>
+            </thead>
+            {% for book in books %}
+                <tr>
+                    <td>{{  book.title }}</td>
+                    <td> {{ book.author }}</td>
+                    <td><a href="/book/{{ book.id }}"><i class="far fa-eye"></i></a> </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        {% if currentPage != 1 %}
+            <a href="/books/{{ currentPage - 1 }}"><i class="fal fa-step-backward"></i></a>
+        {% endif %}
+        {% if not lastPage %}
+            <a href="/books/{{ currentPage + 1 }}"><i class="fas fa-step-forward"></i></a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+

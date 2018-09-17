@@ -36,7 +36,7 @@ class BookModel extends AbstractModel
         $query = 'SELECT * FROM book LIMIT :page, :length';
         $sth = $this->db->prepare($query);
         $sth->bindParam('page', $start, PDO::PARAM_INT);
-        $sth->bindParam('length', $pageLength, PDO::PARAM_LIMIT);
+        $sth->bindParam('length', $pageLength, PDO::PARAM_INT);
         $sth->execute();
 
         return $sth->fetchAll(PDO::FETCH_CLASS, self::CLASSNAME);
