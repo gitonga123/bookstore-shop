@@ -7,7 +7,7 @@ use PDO;
  * Establish a database connection using PHP Data Objects
  * Implements the singleton patterns and creates PDO connection
  */
-class Database
+class Db
 {
 	private static $instance;
 
