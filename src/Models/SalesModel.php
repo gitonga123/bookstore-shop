@@ -10,6 +10,7 @@ namespace Bookstore\Models;
 
 use Bookstore\Domain\Sale;
 use Bookstore\Exceptions\DbException;
+use Bookstore\Exceptions\NotFoundExceptions;
 use PDO;
 
 class SalesModel extends AbstractModel
@@ -33,7 +34,7 @@ class SalesModel extends AbstractModel
         $sales = $sth->fetchAll(PDO::FETCH_CLASS, self::CLASSNAME);
 
         if (empty($sales)) {
-            throw new NotFoundException('Sale not found.');
+            throw new NotFoundExceptions('Sale not found.');
         }
         $sale = array_pop($sales);
 

@@ -4,7 +4,7 @@ namespace Bookstore\Models;
 
 use Bookstore\Domain\Book;
 use Bookstore\Exceptions\DbException;
-use Bookstore\Exceptions\NotFoundException;
+use Bookstore\Exceptions\NotFoundExceptions;
 use PDO;
 
 /**
@@ -24,7 +24,7 @@ class BookModel extends AbstractModel
         $books = $sth->fetchAll(PDO::FETCH_CLASS, self::CLASSNAME);
 
         if (empty($books)) {
-            throw new NotFoundException();
+            throw new NotFoundExceptions();
         }
         return $books[0];
     }

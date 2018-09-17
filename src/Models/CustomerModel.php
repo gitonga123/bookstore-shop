@@ -4,7 +4,7 @@ namespace Bookstore\Models;
 
 use Bookstore\Domain\Customer;
 use Bookstore\Domain\CustomerFactory;
-use Bookstore\Exceptions\NotFoundException;
+use Bookstore\Exceptions\NotFoundExceptions;
 
 /**
  * The Customer Model.
@@ -26,7 +26,7 @@ class CustomerModel extends AbstractModel
         $row = $sth->fetch();
 
         if (empty($row)) {
-            throw new NotFoundException();
+            throw new NotFoundExceptions();
         }
 
         return CustomerFactory::factory(
@@ -52,7 +52,7 @@ class CustomerModel extends AbstractModel
         $row = $sth->fetch();
 
         if (empty($row)) {
-            throw new NotFoundException();
+            throw new NotFoundExceptions();
         }
 
         return CustomerFactory::factory(

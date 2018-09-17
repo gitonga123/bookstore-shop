@@ -55,7 +55,8 @@ $books = [
     ['title' => 'Don Quijote', 'price' => 12.00],
     ['title' => 'Odyssey', 'price' => 3.55]
 ];
-
+$CLASSNAME  = __NAMESPACE__ . '\\' . ucfirst("Tax"); //constant __NAMESPACE__ containts the namespace of the current file
+echo $CLASSNAME;
 // foreach ($books as $index => $book) {
 // 	$addTaxes($book, $index, 0.16);
 // }
