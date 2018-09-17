@@ -1,0 +1,23 @@
+{% extends 'layout.twig' %}
+{% block title %}
+    My Sales
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <table class="table table-condensed">
+            <thead>
+                <th>Transaction ID</th>
+                <th>Date</th>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                   <tr>
+                       <td>{{ sale.id }}</td>
+                       <td>{{ sale.date }}</td>
+                       <td><a href="/sales/{{ sale.id }}"><i class="far fa-eye"></i></a> </td>
+                   </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
