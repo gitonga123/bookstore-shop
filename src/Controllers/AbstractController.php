@@ -13,7 +13,7 @@ use Monolog\Handler\StreamHandler;
 /**
  * AbstractControllers the parent to all controllers
  */
-abstract class AbstractControllers
+abstract class AbstractController
 {
 	protected $request;
 	protected $db;
