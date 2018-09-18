@@ -4,7 +4,7 @@ namespace Bookstore\Core;
 /**
  * Filtering Parameters from requests
  */
-class ClassName
+class FilteredMap
 {
     private $map;
 
