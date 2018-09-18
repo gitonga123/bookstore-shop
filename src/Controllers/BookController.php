@@ -7,8 +7,10 @@
  */
 
 namespace Bookstore\Controllers;
-use Bookstore\Models\BookModel;
 
+use Bookstore\Exceptions\DbException;
+use Bookstore\Exceptions\NotFoundExceptions;
+use Bookstore\Models\BookModel;
 
 class BookController extends AbstractController
 {
@@ -54,7 +56,7 @@ class BookController extends AbstractController
     public function getByUser(): string
     {
         $bookModel = new BookModel($this->db);
-        $books = $bookModel->getByUser($this->CustomerId);
+        $books = $bookModel->getByUser($this->customerId);
 
         $properties = [
             'books' => $books,
@@ -80,5 +82,63 @@ class BookController extends AbstractController
         ];
 
         return $this->render('books.twig', $properties);
+    }
+
+    public function borrow(int $bookId): string
+    {
+        $bookModel = new BookModel($this->db);
+
+        try {
+            $book = $bookModel->get($bookId);
+        } catch (NotFoundExceptions $e) {
+            $this->log->warn('Book not Found: '. $bookId);
+            $params = ['errorMessage' => 'Book Not Found'];
+            return $this->render('error.twig', $params);
+        }
+
+        if (!$book->getCopy()) {
+            $params = [
+                'errorMessage' => 'There are no copies left.'
+            ];
+
+            return $this->render('error.twig', $params);
+        }
+
+        try {
+            $bookModel->borrow($book, $this->customerId);
+        } catch (DbException $e) {
+            $this->log->error(
+                'Error borrowing book: ' . $e->getMessage()
+            );
+            $params = ['errorMessage' => 'Error Borrowing book'];
+            return $this->render('error.twig', $params);
+        }
+
+        return $this->getByUser();
+    }
+
+    public function returnBook(int $bookId): string
+    {
+        $bookModel = new BookModel($this->db);
+
+        try {
+            $book = $bookModel->get($bookId);
+        } catch (NotFoundExceptions $e) {
+            $this->log->warn('Book not Found: ' . $bookId);
+            $params = ['errorMessage' => 'Book not found'];
+            return $this->render('error.twig', $params);
+        }
+
+        $book->addCopy();
+
+        try {
+            $bookModel->returnBook($book, $this->customerId);
+        } catch (DbException $e) {
+            $this->log->error('Error returning Book ' . $e->getMessage());
+            $params = ['errorMessage' => 'Error returning book. '];
+            return $this->render('error.twig', $params);
+        }
+
+        return $this->getByUser();
     }
 }
