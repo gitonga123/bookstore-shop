@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5a4847dc-4aeb-4201-8ac9-eae8379be375" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controllers/AbstractController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controllers/AbstractController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controllers/CustomerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controllers/CustomerController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controllers/ErrorController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controllers/ErrorController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Core/Router.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/Router.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/.autoload.php.swp" beforeDir="false" />
-    </list>
+    <list default="true" id="5a4847dc-4aeb-4201-8ac9-eae8379be375" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,14 +26,14 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="json" value="2" />
-          <entry key="php" value="28" />
+          <entry key="php" value="31" />
           <entry key="twig" value="7" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="JSON" value="2" />
-          <entry key="PHP" value="28" />
+          <entry key="PHP" value="31" />
           <entry key="Twig" value="7" />
         </counts>
       </usages-collector>
@@ -54,14 +46,14 @@
         <counts>
           <entry key="dummy" value="2" />
           <entry key="json" value="9" />
-          <entry key="php" value="4860" />
+          <entry key="php" value="5780" />
           <entry key="twig" value="1639" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="JSON" value="9" />
-          <entry key="PHP" value="4858" />
+          <entry key="PHP" value="5778" />
           <entry key="PLAIN_TEXT" value="2" />
           <entry key="SQL" value="2" />
           <entry key="Twig" value="1639" />
@@ -74,7 +66,7 @@
       <usages-collector id="statistics.vcs.git.usages" />
       <usages-collector id="statistics.php.new.class">
         <counts>
-          <entry key="PHP Class.type" value="5" />
+          <entry key="PHP Class.type" value="6" />
         </counts>
       </usages-collector>
     </session>
@@ -100,7 +92,7 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/view/error.twig">
+        <entry file="file://$PROJECT_DIR$/src/views/error.twig">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="135">
               <caret line="9" column="14" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
@@ -108,11 +100,36 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/view/login.twig">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/views/login.twig">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="281">
               <caret line="29" column="60" selection-start-line="29" selection-start-column="60" selection-end-line="29" selection-end-column="60" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Core/Router.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-339" />
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Controllers/AbstractController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="390">
+              <caret line="32" column="30" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Controllers/BookController.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="414">
+              <caret line="64" column="56" selection-start-line="64" selection-start-column="56" selection-end-line="64" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -163,6 +180,8 @@
         <option value="$PROJECT_DIR$/index.php" />
         <option value="$PROJECT_DIR$/src/view/error.twig" />
         <option value="$PROJECT_DIR$/src/view/login.twig" />
+        <option value="$PROJECT_DIR$/src/Controllers/AbstractController.php" />
+        <option value="$PROJECT_DIR$/src/Controllers/BookController.php" />
       </list>
     </option>
   </component>
@@ -216,7 +235,7 @@
               <item name="bookstore-shop" type="b2602c69:ProjectViewProjectNode" />
               <item name="bookstore-shop" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="view" type="462c0819:PsiDirectoryNode" />
+              <item name="Controllers" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -233,6 +252,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/views" />
       <recent name="$PROJECT_DIR$/src/Exceptions" />
       <recent name="$PROJECT_DIR$/src/Domain" />
     </key>
@@ -262,17 +282,17 @@
       <workItem from="1536913585447" duration="3861000" />
       <workItem from="1537182846429" duration="2533000" />
       <workItem from="1537185720396" duration="7331000" />
-      <workItem from="1537263889099" duration="438000" />
+      <workItem from="1537263889099" duration="1863000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21827000" />
+    <option name="totallyTimeSpent" value="23252000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="826" y="25" width="774" height="873" extended-state="4" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21565934" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21565934" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -285,7 +305,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49862638" visible="true" weight="0.32839838" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" sideWeight="0.49862638" visible="true" weight="0.32839838" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50137365" side_tool="true" weight="0.32885906" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -458,7 +478,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/view/error.twig">
+    <entry file="file://$PROJECT_DIR$/src/views/error.twig">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="9" column="14" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
@@ -510,10 +530,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/view/login.twig">
+    <entry file="file://$PROJECT_DIR$/src/views/login.twig">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="281">
           <caret line="29" column="60" selection-start-line="29" selection-start-column="60" selection-end-line="29" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Core/Router.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-339" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Controllers/AbstractController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="32" column="30" selection-start-line="32" selection-start-column="30" selection-end-line="32" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Controllers/BookController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="64" column="56" selection-start-line="64" selection-start-column="56" selection-end-line="64" selection-end-column="56" />
         </state>
       </provider>
     </entry>

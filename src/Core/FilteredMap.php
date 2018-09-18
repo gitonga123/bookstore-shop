@@ -33,7 +33,7 @@ class FilteredMap
         return floatval($this->get($name));
     }
 
-    public function getString(string $name, bool $filtere = true)
+    public function getString(string $name, bool $filter = true)
     {
           $value = (string)$this->get($name);
           return $filter ? addslashes($value) : $value;

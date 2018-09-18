@@ -64,4 +64,21 @@ class BookController extends AbstractController
 
         return $this->render('books.twig', $properties);
     }
+
+    public function search(): string
+    {
+        $title = $this->request->getParams()->getString('title');
+        $author = $this->request->getParams()->getString('author');
+
+        $bookModel = new BookModel($this->db);
+        $books = $bookModel->search($title, $author);
+
+        $properties = [
+            'books' => $books,
+            'currentPage' => 1,
+            'lastPage' => true
+        ];
+
+        return $this->render('books.twig', $properties);
+    }
 }
