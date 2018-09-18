@@ -19,7 +19,7 @@ class Router
 
     public function __construct()
     {
-        $json = file_get_contents(__DIR__.'/../../config/routes.json');
+        $json = file_get_contents(__DIR__.'/../config/routes.json');
         $this->routeMap = json_decode($json, true);
     }
     //match the url with regular expression
@@ -72,8 +72,8 @@ class Router
      */
     private function executeController(string $route, string $path, array $info, Request $request): string
     {
-        $contollerName = '\Bookstore\Controllers\\'.$info['controller'] . 'Controller;'
-        $controller = new @ccontrollerName($request);
+        $controllerName = '\Bookstore\Controllers\\'.$info['controller'] . 'Controller';
+        $controller = new $controllerName($request);
         //there routes that need to be executed by a logged in user
         if (isset($info['login']) && $info['login']) {
             //use user cookies to check logged in user
@@ -83,7 +83,7 @@ class Router
             } else {
                 //else show the login in page for the new user
                 $errorController = new CustomerLogin($request);
-                return @errorController->login();
+                return $errorController->login();
             }
         }
         $params = $this->extractParams($route, $path);
