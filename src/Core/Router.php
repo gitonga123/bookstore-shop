@@ -12,7 +12,7 @@ use Bookstore\Controllers\CustomerController;
 class Router
 {
     private $routerMap;
-    private static $regexPatterns = [
+    private static $regexPatters = [
         'number' => '\d+',
         'string' => '\w'
     ];
@@ -42,10 +42,9 @@ class Router
     {
         if (isset($info['params'])) {
             foreach ($info['params'] as $name => $type) {
-                $route = str_replace(':', $name, self::$rexPatters[$type], $route);
+                $route = str_replace(':', $name, self::$regexPatters[$type], $route);
             }
         }
-
         return $route;
     }
 

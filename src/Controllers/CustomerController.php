@@ -7,41 +7,38 @@ use Bookstore\Models\CustomerModel;
 
 /**
  * Customer Controller
- * 
  */
 class CustomerController extends AbstractController
 {
-	
-	public function login(string $email): string
-	{
-		if (!$this->request->isPost()) {
-			return $this->render('login.twig',[]);
-		}
+    public function login(string $email): string
+    {
+        if (!$this->request->isPost()) {
+            return $this->render('login.twig', []);
+        }
 
-		$params = $this->request->getParams();
+        $params = $this->request->getParams();
 
-		if (!$params->has('email')) {
-			$params = ['errorMessage' => 'No info Provided.'];
-			return $this->render('login.twig',$params);
-		}
+        if (!$params->has('email')) {
+              $params = ['errorMessage' => 'No info Provided.'];
+              return $this->render('login.twig', $params);
+        }
 
-		$email = $params->getString('email');
+        $email = $params->getString('email');
 
-		$customerModel = new CustomerModel($this->db);
+        $customerModel = new CustomerModel($this->db);
 
-		try {
-			$customer = $customerModel->getByEmail($email);
-		} catch (NotFoundException $e) {
-			$this->log->warn('Customer email not found: '. $email);
-			$params = ['errorMessage' => 'Email not found.'];
+        try {
+            $customer = $customerModel->getByEmail($email);
+        } catch (NotFoundException $e) {
+            $this->log->warn('Customer email not found: '. $email);
+            $params = ['errorMessage' => 'Email not found.'];
 
-			return $this->render('login.twig', $params);
-		}
+            return $this->render('login.twig', $params);
+        }
 
-		setCookie('user', $customer->getId());
+        setCookie('user', $customer->getId());
 
-		$newController = new BookController($this->request);
-		return $newController->getAll();
-	}
+        $newController = new BookController($this->request);
+        return $newController->getAll();
+    }
 }
-?>
