@@ -11,12 +11,17 @@ use PHPUnit_Framework_Testcase;
  */
 class BasicTest extends PHPUnit_Framework_Testcase
 {
+	private $customer;
+
+	public function setUp()
+	{
+		$this->customer = new Basic(1, 'hack', 'solo', 'hansolo@solace.com');
+	}
 	/**
     * @test
     */
 	public function testAmountToBorrow()
 	{
-		$customer = new Basic(1, 'hack', 'solo', 'hansolo@solace.com');
 		//assertion check performed on a value
 		$this->assertSame(
 			3,
@@ -30,11 +35,28 @@ class BasicTest extends PHPUnit_Framework_Testcase
     */
     public function testFail()
     {
-    	$customer = new Basic(1, 'hack', 'solo', 'hansolo@solace.com');
     	$this->assertSame(
 			4,
 			$customer->getAmountToBorrow(),
 			'Basic customer should borrow up to 3 books.'
 		);
+    }
+
+    public function testIsExemptOfTaxes()
+    {
+    	$this->assertFalse(
+    		$this->customer->IsExemptOfTaxes(),
+    		"Basic customer should be exempt of taxes"
+    	);
+    }
+
+    public function testGetMonthlyFee()
+    {
+    	//use assert equal instead
+    	$this->assertSame(
+    		5,
+    		$this->customer->getMonthlyFee(),
+    		"Basic customer should pay 5 a month"
+    	);
     }
 }
