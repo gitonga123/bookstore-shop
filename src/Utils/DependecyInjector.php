@@ -9,21 +9,19 @@ use Bookstore\Exceptions\NotFoundException;
  */
 class DependencyInjector
 {
-	
-	private $dependencies = [];
+    private $dependencies = [];
 
-	public function set(string $name, $object)
-	{
-		$this->dependencies[$name] = $object;
-	}
+    public function set(string $name, $object)
+    {
+        $this->dependencies[$name] = $object;
+    }
 
-	public function get(string $name)
-	{
-		if (isset($this->dependencies[$name])) {
-			return $this->dependencies[$name];
-		}
+    public function get(string $name)
+    {
+        if (isset($this->dependencies[$name])) {
+            return $this->dependencies[$name];
+        }
 
-		throw new NotFoundException($name . ' Dependency Not Found');
-	}
+        throw new NotFoundException($name . ' Dependency Not Found');
+    }
 }
-?->

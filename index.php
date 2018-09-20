@@ -4,6 +4,9 @@
 */
 use Bookstore\Core\Router;
 use Bookstore\Core\Request;
+use Bookstore\Controllers\AbstractController;
+use Bookstore\Core\Config;
+use Bookstore\Utils\DependencyInjector;
 
 require_once __DIR__.'/vendor/autoload.php';
 
