@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is part of the PHP_CodeCoverage package.
+ * This file is part of the php-code-coverage package.
  *
  * (c) Sebastian Bergmann <sebastian@phpunit.de>
  *
@@ -8,23 +8,31 @@
  * file that was distributed with this source code.
  */
 
+namespace SebastianBergmann\CodeCoverage;
+
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Runner\PhptTestCase;
+use PHPUnit\Util\Test;
+use SebastianBergmann\CodeCoverage\Driver\Driver;
+use SebastianBergmann\CodeCoverage\Driver\PHPDBG;
+use SebastianBergmann\CodeCoverage\Driver\Xdebug;
+use SebastianBergmann\CodeCoverage\Node\Builder;
+use SebastianBergmann\CodeCoverage\Node\Directory;
 use SebastianBergmann\CodeUnitReverseLookup\Wizard;
 use SebastianBergmann\Environment\Runtime;
 
 /**
  * Provides collection functionality for PHP code coverage information.
- *
- * @since Class available since Release 1.0.0
  */
-class PHP_CodeCoverage
+final class CodeCoverage
 {
     /**
-     * @var PHP_CodeCoverage_Driver
+     * @var Driver
      */
     private $driver;
 
     /**
-     * @var PHP_CodeCoverage_Filter
+     * @var Filter
      */
     private $filter;
 
@@ -74,7 +82,7 @@ class PHP_CodeCoverage
     private $ignoreDeprecatedCode = false;
 
     /**
-     * @var mixed
+     * @var PhptTestCase|string|TestCase
      */
     private $currentId;
 
@@ -108,21 +116,35 @@ class PHP_CodeCoverage
     private $unintentionallyCoveredSubclassesWhitelist = [];
 
     /**
-     * Constructor.
+     * Determine if the data has been initialized or not
      *
-     * @param PHP_CodeCoverage_Driver $driver
-     * @param PHP_CodeCoverage_Filter $filter
-     *
-     * @throws PHP_CodeCoverage_RuntimeException
+     * @var bool
      */
-    public function __construct(PHP_CodeCoverage_Driver $driver = null, PHP_CodeCoverage_Filter $filter = null)
+    private $isInitialized = false;
+
+    /**
+     * Determine whether we need to check for dead and unused code on each test
+     *
+     * @var bool
+     */
+    private $shouldCheckForDeadAndUnused = true;
+
+    /**
+     * @var Directory
+     */
+    private $report;
+
+    /**
+     * @throws RuntimeException
+     */
+    public function __construct(Driver $driver = null, Filter $filter = null)
     {
         if ($driver === null) {
             $driver = $this->selectDriver();
         }
 
         if ($filter === null) {
-            $filter = new PHP_CodeCoverage_Filter;
+            $filter = new Filter;
         }
 
         $this->driver = $driver;
@@ -132,36 +154,35 @@ class PHP_CodeCoverage
     }
 
     /**
-     * Returns the PHP_CodeCoverage_Report_Node_* object graph
-     * for this PHP_CodeCoverage object.
-     *
-     * @return PHP_CodeCoverage_Report_Node_Directory
-     *
-     * @since  Method available since Release 1.1.0
+     * Returns the code coverage information as a graph of node objects.
      */
-    public function getReport()
+    public function getReport(): Directory
     {
-        $factory = new PHP_CodeCoverage_Report_Factory;
+        if ($this->report === null) {
+            $builder = new Builder;
 
-        return $factory->create($this);
+            $this->report = $builder->build($this);
+        }
+
+        return $this->report;
     }
 
     /**
      * Clears collected code coverage data.
      */
-    public function clear()
+    public function clear(): void
     {
-        $this->currentId = null;
-        $this->data      = [];
-        $this->tests     = [];
+        $this->isInitialized = false;
+        $this->currentId     = null;
+        $this->data          = [];
+        $this->tests         = [];
+        $this->report        = null;
     }
 
     /**
-     * Returns the PHP_CodeCoverage_Filter used.
-     *
-     * @return PHP_CodeCoverage_Filter
+     * Returns the filter object used.
      */
-    public function filter()
+    public function filter(): Filter
     {
         return $this->filter;
     }
@@ -169,14 +190,8 @@ class PHP_CodeCoverage
     /**
      * Returns the collected code coverage data.
      * Set $raw = true to bypass all filters.
-     *
-     * @param bool $raw
-     *
-     * @return array
-     *
-     * @since  Method available since Release 1.1.0
      */
-    public function getData($raw = false)
+    public function getData(bool $raw = false): array
     {
         if (!$raw && $this->addUncoveredFilesFromWhitelist) {
             $this->addUncoveredFilesFromWhitelist();
@@ -187,36 +202,25 @@ class PHP_CodeCoverage
 
     /**
      * Sets the coverage data.
-     *
-     * @param array $data
-     *
-     * @since Method available since Release 2.0.0
      */
-    public function setData(array $data)
+    public function setData(array $data): void
     {
-        $this->data = $data;
+        $this->data   = $data;
+        $this->report = null;
     }
 
     /**
      * Returns the test data.
-     *
-     * @return array
-     *
-     * @since  Method available since Release 1.1.0
      */
-    public function getTests()
+    public function getTests(): array
     {
         return $this->tests;
     }
 
     /**
      * Sets the test data.
-     *
-     * @param array $tests
-     *
-     * @since Method available since Release 2.0.0
      */
-    public function setTests(array $tests)
+    public function setTests(array $tests): void
     {
         $this->tests = $tests;
     }
@@ -224,58 +228,48 @@ class PHP_CodeCoverage
     /**
      * Start collection of code coverage information.
      *
-     * @param mixed $id
-     * @param bool  $clear
+     * @param PhptTestCase|string|TestCase $id
+     * @param bool                         $clear
      *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
+     * @throws RuntimeException
      */
-    public function start($id, $clear = false)
+    public function start($id, bool $clear = false): void
     {
-        if (!is_bool($clear)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         if ($clear) {
             $this->clear();
         }
 
+        if ($this->isInitialized === false) {
+            $this->initializeData();
+        }
+
         $this->currentId = $id;
 
-        $this->driver->start();
+        $this->driver->start($this->shouldCheckForDeadAndUnused);
     }
 
     /**
      * Stop collection of code coverage information.
      *
-     * @param bool  $append
-     * @param mixed $linesToBeCovered
-     * @param array $linesToBeUsed
+     * @param array|false $linesToBeCovered
      *
-     * @return array
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
+     * @throws MissingCoversAnnotationException
+     * @throws CoveredCodeNotExecutedException
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     * @throws \ReflectionException
      */
-    public function stop($append = true, $linesToBeCovered = [], array $linesToBeUsed = [])
+    public function stop(bool $append = true, $linesToBeCovered = [], array $linesToBeUsed = [], bool $ignoreForceCoversAnnotation = false): array
     {
-        if (!is_bool($append)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
-        if (!is_array($linesToBeCovered) && $linesToBeCovered !== false) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
+        if (!\is_array($linesToBeCovered) && $linesToBeCovered !== false) {
+            throw InvalidArgumentException::create(
                 2,
                 'array or false'
             );
         }
 
         $data = $this->driver->stop();
-        $this->append($data, null, $append, $linesToBeCovered, $linesToBeUsed);
+        $this->append($data, null, $append, $linesToBeCovered, $linesToBeUsed, $ignoreForceCoversAnnotation);
 
         $this->currentId = null;
 
@@ -285,25 +279,27 @@ class PHP_CodeCoverage
     /**
      * Appends code coverage data.
      *
-     * @param array $data
-     * @param mixed $id
-     * @param bool  $append
-     * @param mixed $linesToBeCovered
-     * @param array $linesToBeUsed
+     * @param PhptTestCase|string|TestCase $id
+     * @param array|false                  $linesToBeCovered
      *
-     * @throws PHP_CodeCoverage_RuntimeException
+     * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
+     * @throws \SebastianBergmann\CodeCoverage\MissingCoversAnnotationException
+     * @throws \SebastianBergmann\CodeCoverage\CoveredCodeNotExecutedException
+     * @throws \ReflectionException
+     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
+     * @throws RuntimeException
      */
-    public function append(array $data, $id = null, $append = true, $linesToBeCovered = [], array $linesToBeUsed = [])
+    public function append(array $data, $id = null, bool $append = true, $linesToBeCovered = [], array $linesToBeUsed = [], bool $ignoreForceCoversAnnotation = false): void
     {
         if ($id === null) {
             $id = $this->currentId;
         }
 
         if ($id === null) {
-            throw new PHP_CodeCoverage_RuntimeException;
+            throw new RuntimeException;
         }
 
-        $this->applyListsFilter($data);
+        $this->applyWhitelistFilter($data);
         $this->applyIgnoredLinesFilter($data);
         $this->initializeFilesThatAreSeenTheFirstTime($data);
 
@@ -311,11 +307,12 @@ class PHP_CodeCoverage
             return;
         }
 
-        if ($id != 'UNCOVERED_FILES_FROM_WHITELIST') {
+        if ($id !== 'UNCOVERED_FILES_FROM_WHITELIST') {
             $this->applyCoversAnnotationFilter(
                 $data,
                 $linesToBeCovered,
-                $linesToBeUsed
+                $linesToBeUsed,
+                $ignoreForceCoversAnnotation
             );
         }
 
@@ -324,22 +321,22 @@ class PHP_CodeCoverage
         }
 
         $size   = 'unknown';
-        $status = null;
+        $status = -1;
 
-        if ($id instanceof PHPUnit_Framework_TestCase) {
+        if ($id instanceof TestCase) {
             $_size = $id->getSize();
 
-            if ($_size == PHPUnit_Util_Test::SMALL) {
+            if ($_size === Test::SMALL) {
                 $size = 'small';
-            } elseif ($_size == PHPUnit_Util_Test::MEDIUM) {
+            } elseif ($_size === Test::MEDIUM) {
                 $size = 'medium';
-            } elseif ($_size == PHPUnit_Util_Test::LARGE) {
+            } elseif ($_size === Test::LARGE) {
                 $size = 'large';
             }
 
             $status = $id->getStatus();
-            $id     = get_class($id) . '::' . $id->getName();
-        } elseif ($id instanceof PHPUnit_Extensions_PhptTestCase) {
+            $id     = \get_class($id) . '::' . $id->getName();
+        } elseif ($id instanceof PhptTestCase) {
             $size = 'large';
             $id   = $id->getName();
         }
@@ -352,24 +349,26 @@ class PHP_CodeCoverage
             }
 
             foreach ($lines as $k => $v) {
-                if ($v == PHP_CodeCoverage_Driver::LINE_EXECUTED) {
-                    if (empty($this->data[$file][$k]) || !in_array($id, $this->data[$file][$k])) {
+                if ($v === Driver::LINE_EXECUTED) {
+                    if (empty($this->data[$file][$k]) || !\in_array($id, $this->data[$file][$k])) {
                         $this->data[$file][$k][] = $id;
                     }
                 }
             }
         }
+
+        $this->report = null;
     }
 
     /**
-     * Merges the data from another instance of PHP_CodeCoverage.
+     * Merges the data from another instance.
      *
-     * @param PHP_CodeCoverage $that
+     * @param CodeCoverage $that
      */
-    public function merge(PHP_CodeCoverage $that)
+    public function merge(self $that): void
     {
         $this->filter->setWhitelistedFiles(
-            array_merge($this->filter->getWhitelistedFiles(), $that->filter()->getWhitelistedFiles())
+            \array_merge($this->filter->getWhitelistedFiles(), $that->filter()->getWhitelistedFiles())
         );
 
         foreach ($that->data as $file => $lines) {
@@ -381,228 +380,135 @@ class PHP_CodeCoverage
                 continue;
             }
 
-            foreach ($lines as $line => $data) {
-                if ($data !== null) {
-                    if (!isset($this->data[$file][$line])) {
-                        $this->data[$file][$line] = $data;
-                    } else {
-                        $this->data[$file][$line] = array_unique(
-                            array_merge($this->data[$file][$line], $data)
-                        );
-                    }
+            // we should compare the lines if any of two contains data
+            $compareLineNumbers = \array_unique(
+                \array_merge(
+                    \array_keys($this->data[$file]),
+                    \array_keys($that->data[$file])
+                )
+            );
+
+            foreach ($compareLineNumbers as $line) {
+                $thatPriority = $this->getLinePriority($that->data[$file], $line);
+                $thisPriority = $this->getLinePriority($this->data[$file], $line);
+
+                if ($thatPriority > $thisPriority) {
+                    $this->data[$file][$line] = $that->data[$file][$line];
+                } elseif ($thatPriority === $thisPriority && \is_array($this->data[$file][$line])) {
+                    $this->data[$file][$line] = \array_unique(
+                        \array_merge($this->data[$file][$line], $that->data[$file][$line])
+                    );
                 }
             }
         }
 
-        $this->tests = array_merge($this->tests, $that->getTests());
+        $this->tests  = \array_merge($this->tests, $that->getTests());
+        $this->report = null;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     *
-     * @since  Method available since Release 1.1.0
-     */
-    public function setCacheTokens($flag)
+    public function setCacheTokens(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->cacheTokens = $flag;
     }
 
-    /**
-     * @since Method available since Release 1.1.0
-     */
-    public function getCacheTokens()
+    public function getCacheTokens(): bool
     {
         return $this->cacheTokens;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     *
-     * @since  Method available since Release 2.0.0
-     */
-    public function setCheckForUnintentionallyCoveredCode($flag)
+    public function setCheckForUnintentionallyCoveredCode(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->checkForUnintentionallyCoveredCode = $flag;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     */
-    public function setForceCoversAnnotation($flag)
+    public function setForceCoversAnnotation(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->forceCoversAnnotation = $flag;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     *
-     * @since  Method available since Release 3.2.0
-     */
-    public function setCheckForMissingCoversAnnotation($flag)
+    public function setCheckForMissingCoversAnnotation(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->checkForMissingCoversAnnotation = $flag;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     */
-    public function setCheckForUnexecutedCoveredCode($flag)
+    public function setCheckForUnexecutedCoveredCode(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->checkForUnexecutedCoveredCode = $flag;
     }
 
-    /**
-     * @deprecated
-     *
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     */
-    public function setMapTestClassNameToCoveredClassName($flag)
+    public function setAddUncoveredFilesFromWhitelist(bool $flag): void
     {
-    }
-
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     */
-    public function setAddUncoveredFilesFromWhitelist($flag)
-    {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->addUncoveredFilesFromWhitelist = $flag;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     */
-    public function setProcessUncoveredFilesFromWhitelist($flag)
+    public function setProcessUncoveredFilesFromWhitelist(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->processUncoveredFilesFromWhitelist = $flag;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     */
-    public function setDisableIgnoredLines($flag)
+    public function setDisableIgnoredLines(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->disableIgnoredLines = $flag;
     }
 
-    /**
-     * @param bool $flag
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     *
-     * @since  Method available since Release 3.0.2
-     */
-    public function setIgnoreDeprecatedCode($flag)
+    public function setIgnoreDeprecatedCode(bool $flag): void
     {
-        if (!is_bool($flag)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'boolean'
-            );
-        }
-
         $this->ignoreDeprecatedCode = $flag;
     }
 
-    /**
-     * @param array $whitelist
-     *
-     * @since Method available since Release 3.3.0
-     */
-    public function setUnintentionallyCoveredSubclassesWhitelist(array $whitelist)
+    public function setUnintentionallyCoveredSubclassesWhitelist(array $whitelist): void
     {
         $this->unintentionallyCoveredSubclassesWhitelist = $whitelist;
     }
 
     /**
-     * Applies the @covers annotation filtering.
+     * Determine the priority for a line
+     *
+     * 1 = the line is not set
+     * 2 = the line has not been tested
+     * 3 = the line is dead code
+     * 4 = the line has been tested
+     *
+     * During a merge, a higher number is better.
      *
      * @param array $data
-     * @param mixed $linesToBeCovered
-     * @param array $linesToBeUsed
+     * @param int   $line
      *
-     * @throws PHP_CodeCoverage_MissingCoversAnnotationException
-     * @throws PHP_CodeCoverage_UnintentionallyCoveredCodeException
+     * @return int
      */
-    private function applyCoversAnnotationFilter(array &$data, $linesToBeCovered, array $linesToBeUsed)
+    private function getLinePriority($data, $line)
+    {
+        if (!\array_key_exists($line, $data)) {
+            return 1;
+        }
+
+        if (\is_array($data[$line]) && \count($data[$line]) === 0) {
+            return 2;
+        }
+
+        if ($data[$line] === null) {
+            return 3;
+        }
+
+        return 4;
+    }
+
+    /**
+     * Applies the @covers annotation filtering.
+     *
+     * @param array|false $linesToBeCovered
+     *
+     * @throws \SebastianBergmann\CodeCoverage\CoveredCodeNotExecutedException
+     * @throws \ReflectionException
+     * @throws MissingCoversAnnotationException
+     * @throws UnintentionallyCoveredCodeException
+     */
+    private function applyCoversAnnotationFilter(array &$data, $linesToBeCovered, array $linesToBeUsed, bool $ignoreForceCoversAnnotation): void
     {
         if ($linesToBeCovered === false ||
-            ($this->forceCoversAnnotation && empty($linesToBeCovered))) {
+            ($this->forceCoversAnnotation && empty($linesToBeCovered) && !$ignoreForceCoversAnnotation)) {
             if ($this->checkForMissingCoversAnnotation) {
-                throw new PHP_CodeCoverage_MissingCoversAnnotationException;
+                throw new MissingCoversAnnotationException;
             }
 
             $data = [];
@@ -614,38 +520,27 @@ class PHP_CodeCoverage
             return;
         }
 
-        if ($this->checkForUnintentionallyCoveredCode) {
-            $this->performUnintentionallyCoveredCodeCheck(
-                $data,
-                $linesToBeCovered,
-                $linesToBeUsed
-            );
+        if ($this->checkForUnintentionallyCoveredCode &&
+            (!$this->currentId instanceof TestCase ||
+            (!$this->currentId->isMedium() && !$this->currentId->isLarge()))) {
+            $this->performUnintentionallyCoveredCodeCheck($data, $linesToBeCovered, $linesToBeUsed);
         }
 
         if ($this->checkForUnexecutedCoveredCode) {
             $this->performUnexecutedCoveredCodeCheck($data, $linesToBeCovered, $linesToBeUsed);
         }
 
-        $data = array_intersect_key($data, $linesToBeCovered);
+        $data = \array_intersect_key($data, $linesToBeCovered);
 
-        foreach (array_keys($data) as $filename) {
-            $_linesToBeCovered = array_flip($linesToBeCovered[$filename]);
-
-            $data[$filename] = array_intersect_key(
-                $data[$filename],
-                $_linesToBeCovered
-            );
+        foreach (\array_keys($data) as $filename) {
+            $_linesToBeCovered = \array_flip($linesToBeCovered[$filename]);
+            $data[$filename]   = \array_intersect_key($data[$filename], $_linesToBeCovered);
         }
     }
 
-    /**
-     * Applies the whitelist filtering.
-     *
-     * @param array $data
-     */
-    private function applyListsFilter(array &$data)
+    private function applyWhitelistFilter(array &$data): void
     {
-        foreach (array_keys($data) as $filename) {
+        foreach (\array_keys($data) as $filename) {
             if ($this->filter->isFiltered($filename)) {
                 unset($data[$filename]);
             }
@@ -653,13 +548,11 @@ class PHP_CodeCoverage
     }
 
     /**
-     * Applies the "ignored lines" filtering.
-     *
-     * @param array $data
+     * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
      */
-    private function applyIgnoredLinesFilter(array &$data)
+    private function applyIgnoredLinesFilter(array &$data): void
     {
-        foreach (array_keys($data) as $filename) {
+        foreach (\array_keys($data) as $filename) {
             if (!$this->filter->isFile($filename)) {
                 continue;
             }
@@ -670,273 +563,230 @@ class PHP_CodeCoverage
         }
     }
 
-    /**
-     * @param array $data
-     *
-     * @since Method available since Release 1.1.0
-     */
-    private function initializeFilesThatAreSeenTheFirstTime(array $data)
+    private function initializeFilesThatAreSeenTheFirstTime(array $data): void
     {
         foreach ($data as $file => $lines) {
-            if ($this->filter->isFile($file) && !isset($this->data[$file])) {
+            if (!isset($this->data[$file]) && $this->filter->isFile($file)) {
                 $this->data[$file] = [];
 
                 foreach ($lines as $k => $v) {
-                    $this->data[$file][$k] = $v == -2 ? null : [];
+                    $this->data[$file][$k] = $v === -2 ? null : [];
                 }
             }
         }
     }
 
     /**
-     * Processes whitelisted files that are not covered.
+     * @throws CoveredCodeNotExecutedException
+     * @throws InvalidArgumentException
+     * @throws MissingCoversAnnotationException
+     * @throws RuntimeException
+     * @throws UnintentionallyCoveredCodeException
+     * @throws \ReflectionException
      */
-    private function addUncoveredFilesFromWhitelist()
+    private function addUncoveredFilesFromWhitelist(): void
     {
         $data           = [];
-        $uncoveredFiles = array_diff(
+        $uncoveredFiles = \array_diff(
             $this->filter->getWhitelist(),
-            array_keys($this->data)
+            \array_keys($this->data)
         );
 
         foreach ($uncoveredFiles as $uncoveredFile) {
-            if (!file_exists($uncoveredFile)) {
+            if (!\file_exists($uncoveredFile)) {
                 continue;
             }
 
-            if ($this->processUncoveredFilesFromWhitelist) {
-                $this->processUncoveredFileFromWhitelist(
-                    $uncoveredFile,
-                    $data,
-                    $uncoveredFiles
-                );
-            } else {
-                $data[$uncoveredFile] = [];
+            $data[$uncoveredFile] = [];
 
-                $lines = count(file($uncoveredFile));
+            $lines = \count(\file($uncoveredFile));
 
-                for ($i = 1; $i <= $lines; $i++) {
-                    $data[$uncoveredFile][$i] = PHP_CodeCoverage_Driver::LINE_NOT_EXECUTED;
-                }
+            for ($i = 1; $i <= $lines; $i++) {
+                $data[$uncoveredFile][$i] = Driver::LINE_NOT_EXECUTED;
             }
         }
 
         $this->append($data, 'UNCOVERED_FILES_FROM_WHITELIST');
     }
 
-    /**
-     * @param string $uncoveredFile
-     * @param array  $data
-     * @param array  $uncoveredFiles
-     */
-    private function processUncoveredFileFromWhitelist($uncoveredFile, array &$data, array $uncoveredFiles)
+    private function getLinesToBeIgnored(string $fileName): array
     {
-        $this->driver->start();
-        include_once $uncoveredFile;
-        $coverage = $this->driver->stop();
+        if (isset($this->ignoredLines[$fileName])) {
+            return $this->ignoredLines[$fileName];
+        }
 
-        foreach ($coverage as $file => $fileCoverage) {
-            if (!isset($data[$file]) &&
-                in_array($file, $uncoveredFiles)) {
-                foreach (array_keys($fileCoverage) as $key) {
-                    if ($fileCoverage[$key] == PHP_CodeCoverage_Driver::LINE_EXECUTED) {
-                        $fileCoverage[$key] = PHP_CodeCoverage_Driver::LINE_NOT_EXECUTED;
-                    }
-                }
+        $this->ignoredLines[$fileName] = [];
 
-                $data[$file] = $fileCoverage;
+        $lines = \file($fileName);
+
+        foreach ($lines as $index => $line) {
+            if (!\trim($line)) {
+                $this->ignoredLines[$fileName][] = $index + 1;
             }
         }
+
+        if ($this->cacheTokens) {
+            $tokens = \PHP_Token_Stream_CachingFactory::get($fileName);
+        } else {
+            $tokens = new \PHP_Token_Stream($fileName);
+        }
+
+        foreach ($tokens->getInterfaces() as $interface) {
+            $interfaceStartLine = $interface['startLine'];
+            $interfaceEndLine   = $interface['endLine'];
+
+            foreach (\range($interfaceStartLine, $interfaceEndLine) as $line) {
+                $this->ignoredLines[$fileName][] = $line;
+            }
+        }
+
+        foreach (\array_merge($tokens->getClasses(), $tokens->getTraits()) as $classOrTrait) {
+            $classOrTraitStartLine = $classOrTrait['startLine'];
+            $classOrTraitEndLine   = $classOrTrait['endLine'];
+
+            if (empty($classOrTrait['methods'])) {
+                foreach (\range($classOrTraitStartLine, $classOrTraitEndLine) as $line) {
+                    $this->ignoredLines[$fileName][] = $line;
+                }
+
+                continue;
+            }
+
+            $firstMethod          = \array_shift($classOrTrait['methods']);
+            $firstMethodStartLine = $firstMethod['startLine'];
+            $firstMethodEndLine   = $firstMethod['endLine'];
+            $lastMethodEndLine    = $firstMethodEndLine;
+
+            do {
+                $lastMethod = \array_pop($classOrTrait['methods']);
+            } while ($lastMethod !== null && 0 === \strpos($lastMethod['signature'], 'anonymousFunction'));
+
+            if ($lastMethod !== null) {
+                $lastMethodEndLine = $lastMethod['endLine'];
+            }
+
+            foreach (\range($classOrTraitStartLine, $firstMethodStartLine) as $line) {
+                $this->ignoredLines[$fileName][] = $line;
+            }
+
+            foreach (\range($lastMethodEndLine + 1, $classOrTraitEndLine) as $line) {
+                $this->ignoredLines[$fileName][] = $line;
+            }
+        }
+
+        if ($this->disableIgnoredLines) {
+            $this->ignoredLines[$fileName] = \array_unique($this->ignoredLines[$fileName]);
+            \sort($this->ignoredLines[$fileName]);
+
+            return $this->ignoredLines[$fileName];
+        }
+
+        $ignore = false;
+        $stop   = false;
+
+        foreach ($tokens->tokens() as $token) {
+            switch (\get_class($token)) {
+                case \PHP_Token_COMMENT::class:
+                case \PHP_Token_DOC_COMMENT::class:
+                    $_token = \trim($token);
+                    $_line  = \trim($lines[$token->getLine() - 1]);
+
+                    if ($_token === '// @codeCoverageIgnore' ||
+                        $_token === '//@codeCoverageIgnore') {
+                        $ignore = true;
+                        $stop   = true;
+                    } elseif ($_token === '// @codeCoverageIgnoreStart' ||
+                        $_token === '//@codeCoverageIgnoreStart') {
+                        $ignore = true;
+                    } elseif ($_token === '// @codeCoverageIgnoreEnd' ||
+                        $_token === '//@codeCoverageIgnoreEnd') {
+                        $stop = true;
+                    }
+
+                    if (!$ignore) {
+                        $start = $token->getLine();
+                        $end   = $start + \substr_count($token, "\n");
+
+                        // Do not ignore the first line when there is a token
+                        // before the comment
+                        if (0 !== \strpos($_token, $_line)) {
+                            $start++;
+                        }
+
+                        for ($i = $start; $i < $end; $i++) {
+                            $this->ignoredLines[$fileName][] = $i;
+                        }
+
+                        // A DOC_COMMENT token or a COMMENT token starting with "/*"
+                        // does not contain the final \n character in its text
+                        if (isset($lines[$i - 1]) && 0 === \strpos($_token, '/*') && '*/' === \substr(\trim($lines[$i - 1]), -2)) {
+                            $this->ignoredLines[$fileName][] = $i;
+                        }
+                    }
+
+                    break;
+
+                case \PHP_Token_INTERFACE::class:
+                case \PHP_Token_TRAIT::class:
+                case \PHP_Token_CLASS::class:
+                case \PHP_Token_FUNCTION::class:
+                    /* @var \PHP_Token_Interface $token */
+
+                    $docblock = $token->getDocblock();
+
+                    $this->ignoredLines[$fileName][] = $token->getLine();
+
+                    if (\strpos($docblock, '@codeCoverageIgnore') || ($this->ignoreDeprecatedCode && \strpos($docblock, '@deprecated'))) {
+                        $endLine = $token->getEndLine();
+
+                        for ($i = $token->getLine(); $i <= $endLine; $i++) {
+                            $this->ignoredLines[$fileName][] = $i;
+                        }
+                    }
+
+                    break;
+
+                /* @noinspection PhpMissingBreakStatementInspection */
+                case \PHP_Token_NAMESPACE::class:
+                    $this->ignoredLines[$fileName][] = $token->getEndLine();
+
+                // Intentional fallthrough
+                case \PHP_Token_DECLARE::class:
+                case \PHP_Token_OPEN_TAG::class:
+                case \PHP_Token_CLOSE_TAG::class:
+                case \PHP_Token_USE::class:
+                    $this->ignoredLines[$fileName][] = $token->getLine();
+
+                    break;
+            }
+
+            if ($ignore) {
+                $this->ignoredLines[$fileName][] = $token->getLine();
+
+                if ($stop) {
+                    $ignore = false;
+                    $stop   = false;
+                }
+            }
+        }
+
+        $this->ignoredLines[$fileName][] = \count($lines) + 1;
+
+        $this->ignoredLines[$fileName] = \array_unique(
+            $this->ignoredLines[$fileName]
+        );
+
+        $this->ignoredLines[$fileName] = \array_unique($this->ignoredLines[$fileName]);
+        \sort($this->ignoredLines[$fileName]);
+
+        return $this->ignoredLines[$fileName];
     }
 
     /**
-     * Returns the lines of a source file that should be ignored.
-     *
-     * @param string $filename
-     *
-     * @return array
-     *
-     * @throws PHP_CodeCoverage_InvalidArgumentException
-     *
-     * @since  Method available since Release 2.0.0
+     * @throws \ReflectionException
+     * @throws UnintentionallyCoveredCodeException
      */
-    private function getLinesToBeIgnored($filename)
-    {
-        if (!is_string($filename)) {
-            throw PHP_CodeCoverage_InvalidArgumentException::create(
-                1,
-                'string'
-            );
-        }
-
-        if (!isset($this->ignoredLines[$filename])) {
-            $this->ignoredLines[$filename] = [];
-
-            if ($this->disableIgnoredLines) {
-                return $this->ignoredLines[$filename];
-            }
-
-            $ignore   = false;
-            $stop     = false;
-            $lines    = file($filename);
-            $numLines = count($lines);
-
-            foreach ($lines as $index => $line) {
-                if (!trim($line)) {
-                    $this->ignoredLines[$filename][] = $index + 1;
-                }
-            }
-
-            if ($this->cacheTokens) {
-                $tokens = PHP_Token_Stream_CachingFactory::get($filename);
-            } else {
-                $tokens = new PHP_Token_Stream($filename);
-            }
-
-            $classes = array_merge($tokens->getClasses(), $tokens->getTraits());
-            $tokens  = $tokens->tokens();
-
-            foreach ($tokens as $token) {
-                switch (get_class($token)) {
-                    case 'PHP_Token_COMMENT':
-                    case 'PHP_Token_DOC_COMMENT':
-                        $_token = trim($token);
-                        $_line  = trim($lines[$token->getLine() - 1]);
-
-                        if ($_token == '// @codeCoverageIgnore' ||
-                            $_token == '//@codeCoverageIgnore') {
-                            $ignore = true;
-                            $stop   = true;
-                        } elseif ($_token == '// @codeCoverageIgnoreStart' ||
-                            $_token == '//@codeCoverageIgnoreStart') {
-                            $ignore = true;
-                        } elseif ($_token == '// @codeCoverageIgnoreEnd' ||
-                            $_token == '//@codeCoverageIgnoreEnd') {
-                            $stop = true;
-                        }
-
-                        if (!$ignore) {
-                            $start = $token->getLine();
-                            $end   = $start + substr_count($token, "\n");
-
-                            // Do not ignore the first line when there is a token
-                            // before the comment
-                            if (0 !== strpos($_token, $_line)) {
-                                $start++;
-                            }
-
-                            for ($i = $start; $i < $end; $i++) {
-                                $this->ignoredLines[$filename][] = $i;
-                            }
-
-                            // A DOC_COMMENT token or a COMMENT token starting with "/*"
-                            // does not contain the final \n character in its text
-                            if (isset($lines[$i-1]) && 0 === strpos($_token, '/*') && '*/' === substr(trim($lines[$i-1]), -2)) {
-                                $this->ignoredLines[$filename][] = $i;
-                            }
-                        }
-                        break;
-
-                    case 'PHP_Token_INTERFACE':
-                    case 'PHP_Token_TRAIT':
-                    case 'PHP_Token_CLASS':
-                    case 'PHP_Token_FUNCTION':
-                        /* @var PHP_Token_Interface $token */
-
-                        $docblock = $token->getDocblock();
-
-                        $this->ignoredLines[$filename][] = $token->getLine();
-
-                        if (strpos($docblock, '@codeCoverageIgnore') || ($this->ignoreDeprecatedCode && strpos($docblock, '@deprecated'))) {
-                            $endLine = $token->getEndLine();
-
-                            for ($i = $token->getLine(); $i <= $endLine; $i++) {
-                                $this->ignoredLines[$filename][] = $i;
-                            }
-                        } elseif ($token instanceof PHP_Token_INTERFACE ||
-                            $token instanceof PHP_Token_TRAIT ||
-                            $token instanceof PHP_Token_CLASS) {
-                            if (empty($classes[$token->getName()]['methods'])) {
-                                for ($i = $token->getLine();
-                                     $i <= $token->getEndLine();
-                                     $i++) {
-                                    $this->ignoredLines[$filename][] = $i;
-                                }
-                            } else {
-                                $firstMethod = array_shift(
-                                    $classes[$token->getName()]['methods']
-                                );
-
-                                do {
-                                    $lastMethod = array_pop(
-                                        $classes[$token->getName()]['methods']
-                                    );
-                                } while ($lastMethod !== null &&
-                                    substr($lastMethod['signature'], 0, 18) == 'anonymous function');
-
-                                if ($lastMethod === null) {
-                                    $lastMethod = $firstMethod;
-                                }
-
-                                for ($i = $token->getLine();
-                                     $i < $firstMethod['startLine'];
-                                     $i++) {
-                                    $this->ignoredLines[$filename][] = $i;
-                                }
-
-                                for ($i = $token->getEndLine();
-                                     $i > $lastMethod['endLine'];
-                                     $i--) {
-                                    $this->ignoredLines[$filename][] = $i;
-                                }
-                            }
-                        }
-                        break;
-
-                    case 'PHP_Token_NAMESPACE':
-                        $this->ignoredLines[$filename][] = $token->getEndLine();
-
-                    // Intentional fallthrough
-                    case 'PHP_Token_DECLARE':
-                    case 'PHP_Token_OPEN_TAG':
-                    case 'PHP_Token_CLOSE_TAG':
-                    case 'PHP_Token_USE':
-                        $this->ignoredLines[$filename][] = $token->getLine();
-                        break;
-                }
-
-                if ($ignore) {
-                    $this->ignoredLines[$filename][] = $token->getLine();
-
-                    if ($stop) {
-                        $ignore = false;
-                        $stop   = false;
-                    }
-                }
-            }
-
-            $this->ignoredLines[$filename][] = $numLines + 1;
-
-            $this->ignoredLines[$filename] = array_unique(
-                $this->ignoredLines[$filename]
-            );
-
-            sort($this->ignoredLines[$filename]);
-        }
-
-        return $this->ignoredLines[$filename];
-    }
-
-    /**
-     * @param array $data
-     * @param array $linesToBeCovered
-     * @param array $linesToBeUsed
-     *
-     * @throws PHP_CodeCoverage_UnintentionallyCoveredCodeException
-     *
-     * @since Method available since Release 2.0.0
-     */
-    private function performUnintentionallyCoveredCodeCheck(array &$data, array $linesToBeCovered, array $linesToBeUsed)
+    private function performUnintentionallyCoveredCodeCheck(array &$data, array $linesToBeCovered, array $linesToBeUsed): void
     {
         $allowedLines = $this->getAllowedLines(
             $linesToBeCovered,
@@ -947,7 +797,7 @@ class PHP_CodeCoverage
 
         foreach ($data as $file => $_data) {
             foreach ($_data as $line => $flag) {
-                if ($flag == 1 && !isset($allowedLines[$file][$line])) {
+                if ($flag === 1 && !isset($allowedLines[$file][$line])) {
                     $unintentionallyCoveredUnits[] = $this->wizard->lookup($file, $line);
                 }
             }
@@ -956,90 +806,72 @@ class PHP_CodeCoverage
         $unintentionallyCoveredUnits = $this->processUnintentionallyCoveredUnits($unintentionallyCoveredUnits);
 
         if (!empty($unintentionallyCoveredUnits)) {
-            throw new PHP_CodeCoverage_UnintentionallyCoveredCodeException(
+            throw new UnintentionallyCoveredCodeException(
                 $unintentionallyCoveredUnits
             );
         }
     }
 
     /**
-     * @param array $data
-     * @param array $linesToBeCovered
-     * @param array $linesToBeUsed
-     *
-     * @throws PHP_CodeCoverage_CoveredCodeNotExecutedException
+     * @throws CoveredCodeNotExecutedException
      */
-    private function performUnexecutedCoveredCodeCheck(array &$data, array $linesToBeCovered, array $linesToBeUsed)
+    private function performUnexecutedCoveredCodeCheck(array &$data, array $linesToBeCovered, array $linesToBeUsed): void
     {
-        $expectedLines = $this->getAllowedLines(
-            $linesToBeCovered,
-            $linesToBeUsed
-        );
+        $executedCodeUnits = $this->coverageToCodeUnits($data);
+        $message           = '';
 
-        foreach ($data as $file => $_data) {
-            foreach (array_keys($_data) as $line) {
-                if (!isset($expectedLines[$file][$line])) {
-                    continue;
-                }
-
-                unset($expectedLines[$file][$line]);
+        foreach ($this->linesToCodeUnits($linesToBeCovered) as $codeUnit) {
+            if (!\in_array($codeUnit, $executedCodeUnits)) {
+                $message .= \sprintf(
+                    '- %s is expected to be executed (@covers) but was not executed' . "\n",
+                    $codeUnit
+                );
             }
         }
 
-        $message = '';
-
-        foreach ($expectedLines as $file => $lines) {
-            if (empty($lines)) {
-                continue;
-            }
-
-            foreach (array_keys($lines) as $line) {
-                $message .= sprintf('- %s:%d' . PHP_EOL, $file, $line);
+        foreach ($this->linesToCodeUnits($linesToBeUsed) as $codeUnit) {
+            if (!\in_array($codeUnit, $executedCodeUnits)) {
+                $message .= \sprintf(
+                    '- %s is expected to be executed (@uses) but was not executed' . "\n",
+                    $codeUnit
+                );
             }
         }
 
         if (!empty($message)) {
-            throw new PHP_CodeCoverage_CoveredCodeNotExecutedException($message);
+            throw new CoveredCodeNotExecutedException($message);
         }
     }
 
-    /**
-     * @param array $linesToBeCovered
-     * @param array $linesToBeUsed
-     *
-     * @return array
-     *
-     * @since Method available since Release 2.0.0
-     */
-    private function getAllowedLines(array $linesToBeCovered, array $linesToBeUsed)
+    private function getAllowedLines(array $linesToBeCovered, array $linesToBeUsed): array
     {
         $allowedLines = [];
 
-        foreach (array_keys($linesToBeCovered) as $file) {
+        foreach (\array_keys($linesToBeCovered) as $file) {
             if (!isset($allowedLines[$file])) {
                 $allowedLines[$file] = [];
             }
 
-            $allowedLines[$file] = array_merge(
+            $allowedLines[$file] = \array_merge(
                 $allowedLines[$file],
                 $linesToBeCovered[$file]
             );
         }
 
-        foreach (array_keys($linesToBeUsed) as $file) {
+        foreach (\array_keys($linesToBeUsed) as $file) {
             if (!isset($allowedLines[$file])) {
                 $allowedLines[$file] = [];
             }
 
-            $allowedLines[$file] = array_merge(
+            $allowedLines[$file] = \array_merge(
                 $allowedLines[$file],
                 $linesToBeUsed[$file]
             );
         }
 
-        foreach (array_keys($allowedLines) as $file) {
-            $allowedLines[$file] = array_flip(
-                array_unique($allowedLines[$file])
+        foreach (\array_keys($allowedLines) as $file) {
+            $allowedLines[$file] = \array_flip(
+                \array_unique($allowedLines[$file])
             );
         }
 
@@ -1047,54 +879,122 @@ class PHP_CodeCoverage
     }
 
     /**
-     * @return PHP_CodeCoverage_Driver
-     *
-     * @throws PHP_CodeCoverage_RuntimeException
+     * @throws RuntimeException
      */
-    private function selectDriver()
+    private function selectDriver(): Driver
     {
         $runtime = new Runtime;
 
         if (!$runtime->canCollectCodeCoverage()) {
-            throw new PHP_CodeCoverage_RuntimeException('No code coverage driver available');
+            throw new RuntimeException('No code coverage driver available');
         }
 
-        if ($runtime->isHHVM()) {
-            return new PHP_CodeCoverage_Driver_HHVM;
-        } elseif ($runtime->isPHPDBG()) {
-            return new PHP_CodeCoverage_Driver_PHPDBG;
-        } else {
-            return new PHP_CodeCoverage_Driver_Xdebug;
+        if ($runtime->isPHPDBG()) {
+            return new PHPDBG;
         }
+
+        if ($runtime->hasXdebug()) {
+            return new Xdebug;
+        }
+
+        throw new RuntimeException('No code coverage driver available');
     }
 
-    /**
-     * @param array $unintentionallyCoveredUnits
-     *
-     * @return array
-     */
-    private function processUnintentionallyCoveredUnits(array $unintentionallyCoveredUnits)
+    private function processUnintentionallyCoveredUnits(array $unintentionallyCoveredUnits): array
     {
-        $unintentionallyCoveredUnits = array_unique($unintentionallyCoveredUnits);
-        sort($unintentionallyCoveredUnits);
+        $unintentionallyCoveredUnits = \array_unique($unintentionallyCoveredUnits);
+        \sort($unintentionallyCoveredUnits);
 
-        foreach (array_keys($unintentionallyCoveredUnits) as $k => $v) {
-            $unit = explode('::', $unintentionallyCoveredUnits[$k]);
+        foreach (\array_keys($unintentionallyCoveredUnits) as $k => $v) {
+            $unit = \explode('::', $unintentionallyCoveredUnits[$k]);
 
-            if (count($unit) != 2) {
+            if (\count($unit) !== 2) {
                 continue;
             }
 
-            $class = new ReflectionClass($unit[0]);
+            $class = new \ReflectionClass($unit[0]);
 
             foreach ($this->unintentionallyCoveredSubclassesWhitelist as $whitelisted) {
                 if ($class->isSubclassOf($whitelisted)) {
                     unset($unintentionallyCoveredUnits[$k]);
+
                     break;
                 }
             }
         }
 
-        return array_values($unintentionallyCoveredUnits);
+        return \array_values($unintentionallyCoveredUnits);
+    }
+
+    /**
+     * @throws CoveredCodeNotExecutedException
+     * @throws InvalidArgumentException
+     * @throws MissingCoversAnnotationException
+     * @throws RuntimeException
+     * @throws UnintentionallyCoveredCodeException
+     * @throws \ReflectionException
+     */
+    private function initializeData(): void
+    {
+        $this->isInitialized = true;
+
+        if ($this->processUncoveredFilesFromWhitelist) {
+            $this->shouldCheckForDeadAndUnused = false;
+
+            $this->driver->start();
+
+            foreach ($this->filter->getWhitelist() as $file) {
+                if ($this->filter->isFile($file)) {
+                    include_once $file;
+                }
+            }
+
+            $data     = [];
+            $coverage = $this->driver->stop();
+
+            foreach ($coverage as $file => $fileCoverage) {
+                if ($this->filter->isFiltered($file)) {
+                    continue;
+                }
+
+                foreach (\array_keys($fileCoverage) as $key) {
+                    if ($fileCoverage[$key] === Driver::LINE_EXECUTED) {
+                        $fileCoverage[$key] = Driver::LINE_NOT_EXECUTED;
+                    }
+                }
+
+                $data[$file] = $fileCoverage;
+            }
+
+            $this->append($data, 'UNCOVERED_FILES_FROM_WHITELIST');
+        }
+    }
+
+    private function coverageToCodeUnits(array $data): array
+    {
+        $codeUnits = [];
+
+        foreach ($data as $filename => $lines) {
+            foreach ($lines as $line => $flag) {
+                if ($flag === 1) {
+                    $codeUnits[] = $this->wizard->lookup($filename, $line);
+                }
+            }
+        }
+
+        return \array_unique($codeUnits);
+    }
+
+    private function linesToCodeUnits(array $data): array
+    {
+        $codeUnits = [];
+
+        foreach ($data as $filename => $lines) {
+            foreach ($lines as $line) {
+                $codeUnits[] = $this->wizard->lookup($filename, $line);
+            }
+        }
+
+        return \array_unique($codeUnits);
     }
 }
