@@ -20,5 +20,13 @@ class CustomerFactory extends \PHPUnit_Framework_TestCase
 			Basic::class, $customer, 'basic should create a Customer\Basic object.'
 		);
 	}
+	/**
+	 * @expectedException \InvalidArgumentException
+	 * @expectedExceptionMessage Wrong type.
+	 */
+	public function testCreatingWrongTypeOfCustomer()
+	{
+		$customer = CustomerFactory::factory('deluxe', 1, 'han','solo', 'han@solo.com');
+	}
 }
 ?>
