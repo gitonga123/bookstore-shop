@@ -3,13 +3,13 @@
 namespace Bookstore\Tests\Domain\Customer;
 
 use Bookstore\Domain\Customer\Basic;
-use PHPUnit_Framework_Testcase;
+// use PHPUnit_Framework_Testcase;
 
 /**
  * This test class tests the basic class under customer.
  * using PHPUnit
  */
-class BasicTest extends PHPUnit_Framework_Testcase
+class BasicTest extends \PHPUnit_Framework_TestCase
 {
 	private $customer;
 

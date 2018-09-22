@@ -3,12 +3,12 @@
 namespace Bookstore\Tests\Domain\Customer;
 
 use Bookstore\Domain\Customer\CustomerFactory;
-use PHPUnit_Framework_TestCase;
+// use PHPUnit_Framework_TestCase;
 
 /**
  * Test for CustomerFactory Class
  */
-class CustomerFactory extends PHPUnit_Framework_TestCase
+class CustomerFactory extends \PHPUnit_Framework_TestCase
 {
 	
 	public function testFactoryBasic()
