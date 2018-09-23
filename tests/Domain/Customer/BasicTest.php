@@ -29,22 +29,10 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 		);
 	}
 
-	/**
-    * @test
-    */
-    public function testFail()
-    {
-    	$this->assertSame(
-			4,
-			$this->customer->getAmountToBorrow(),
-			'Basic customer should borrow up to 3 books.'
-		);
-    }
-
     public function testIsExemptOfTaxes()
     {
     	$this->assertFalse(
-    		$this->customer->IsExemptOfTaxes(),
+    		$this->customer->isExtendOfTaxes(),
     		"Basic customer should be exempt of taxes"
     	);
     }
@@ -52,7 +40,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase
     public function testGetMonthlyFee()
     {
     	//use assert equal instead
-    	$this->assertSame(
+    	$this->assertEquals(
     		5,
     		$this->customer->getMonthlyFee(),
     		"Basic customer should pay 5 a month"

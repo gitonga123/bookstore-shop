@@ -3,12 +3,13 @@
 namespace Bookstore\Tests\Domain\Customer;
 
 use Bookstore\Domain\Customer\CustomerFactory;
+use Bookstore\Domain\Customer\Basic;
 // use PHPUnit_Framework_TestCase;
 
 /**
  * Test for CustomerFactory Class
  */
-class CustomerFactory extends \PHPUnit_Framework_TestCase
+class CustomerFactoryTest extends \PHPUnit_Framework_TestCase
 {
 	
 	public function testFactoryBasic()
@@ -19,10 +20,14 @@ class CustomerFactory extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(
 			Basic::class, $customer, 'basic should create a Customer\Basic object.'
 		);
+
+		$expectedBasicCustomer = new Basic(1,'han', 'solo', 'han@solo.com');
+		$this->assertEquals($customer, $expectedBasicCustomer, 'Customer Object Is not as Expected.');
 	}
+
+
 	/**
 	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage Wrong type.
 	 */
 	public function testCreatingWrongTypeOfCustomer()
 	{

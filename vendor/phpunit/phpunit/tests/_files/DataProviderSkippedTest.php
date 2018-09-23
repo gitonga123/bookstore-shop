@@ -1,28 +1,10 @@
 <?php
-/*
- * This file is part of PHPUnit.
- *
- * (c) Sebastian Bergmann <sebastian@phpunit.de>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-use PHPUnit\Framework\TestCase;
-
-class DataProviderSkippedTest extends TestCase
+class DataProviderSkippedTest extends PHPUnit_Framework_TestCase
 {
-    public static function providerMethod()
-    {
-        return [
-            [0, 0, 0],
-            [0, 1, 1],
-        ];
-    }
-
     /**
      * @dataProvider skippedTestProviderMethod
      */
-    public function testSkipped($a, $b, $c): void
+    public function testSkipped($a, $b, $c)
     {
         $this->assertTrue(true);
     }
@@ -30,7 +12,7 @@ class DataProviderSkippedTest extends TestCase
     /**
      * @dataProvider providerMethod
      */
-    public function testAdd($a, $b, $c): void
+    public function testAdd($a, $b, $c)
     {
         $this->assertEquals($c, $a + $b);
     }
@@ -39,9 +21,17 @@ class DataProviderSkippedTest extends TestCase
     {
         $this->markTestSkipped('skipped');
 
-        return [
-            [0, 0, 0],
-            [0, 1, 1],
-        ];
+        return array(
+          array(0, 0, 0),
+          array(0, 1, 1),
+        );
+    }
+
+    public static function providerMethod()
+    {
+        return array(
+          array(0, 0, 0),
+          array(0, 1, 1),
+        );
     }
 }
