@@ -1,27 +1,24 @@
-<!-- this files defines a set of rules like where the tests arem what code are the tests testing. -->
-
-<?xml version="0.1" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit backupGlobals="false"
-	backupStaticAttributtes="false" 
-	colors="true" 
-	convertErrorsToExceptions="true" 
-	convertNoticesToExceptions="true"
-	convertWarningToExceptions="true"
-	processIsolation="false"
-	stopOnFailure="false"
-	syntaxCheck="false"
-	boostrap="vendor/autoload.php">
-
-	<testsuites>
-		<testsuites name="Bookstore Test Suites">
-			<directory>./tests/</directory>
-		</testsuites>
-	</testsuites>
-
-	<filter>
-		<whitelist>
-			<directory>./src</directory>
-		</whitelist>
-	</filter>
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="false"
+         bootstrap="vendor/autoload.php"
+>
+    <testsuites>
+        <testsuite name="Bookstore Test Suite">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory>./src</directory>
+        </whitelist>
+    </filter>
 </phpunit>

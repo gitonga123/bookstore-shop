@@ -38,7 +38,7 @@ class CustomerController extends AbstractController
 
         setCookie('user', $customer->getId());
 
-        $newController = new BookController($this->request);
+        $newController = new BookController($this->di, $this->request);
         return $newController->getAll();
     }
 }

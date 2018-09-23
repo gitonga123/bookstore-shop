@@ -3,6 +3,7 @@ namespace Bookstore\Core;
 
 use Bookstore\Controllers\ErrorController;
 use Bookstore\Controllers\CustomerController;
+use Bookstore\Utils\DependencyInjector;
 
 /**
  * The Router
@@ -17,8 +18,9 @@ class Router
         'string' => '\w'
     ];
 
-    public function __construct()
+    public function __construct(DependencyInjector $di)
     {
+        $this->di = $di;
         $json = file_get_contents(__DIR__.'/../config/routes.json');
         $this->routeMap = json_decode($json, true);
     }
@@ -33,7 +35,10 @@ class Router
                   return $this->executeController($route, $path, $info, $request);
             }
         }
-        $errorController = new ErrorController($request);
+        $errorController = new ErrorController(
+            $this->di,
+            $request
+        );
         return $errorController->notFound();
     }
 
@@ -72,7 +77,7 @@ class Router
     private function executeController(string $route, string $path, array $info, Request $request): string
     {
         $controllerName = '\Bookstore\Controllers\\'.$info['controller'] . 'Controller';
-        $controller = new $controllerName($request);
+        $controller = new $controllerName($this->di, $request);
         //there routes that need to be executed by a logged in user
         if (isset($info['login']) && $info['login']) {
             //use user cookies to check logged in user
@@ -81,7 +86,7 @@ class Router
                 $controller->setCustomerId($customerId);
             } else {
                 //else show the login in page for the new user
-                $errorController = new CustomerLogin($request);
+                $errorController = new CustomerLogin($this->di, $request);
                 return $errorController->login();
             }
         }

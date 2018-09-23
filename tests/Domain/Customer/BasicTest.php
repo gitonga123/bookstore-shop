@@ -3,7 +3,6 @@
 namespace Bookstore\Tests\Domain\Customer;
 
 use Bookstore\Domain\Customer\Basic;
-// use PHPUnit_Framework_Testcase;
 
 /**
  * This test class tests the basic class under customer.
@@ -25,7 +24,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 		//assertion check performed on a value
 		$this->assertSame(
 			3,
-			$customer->getAmountToBorrow(),
+			$this->customer->getAmountToBorrow(),
 			'Basic customer should borrow up to 3 books.'
 		);
 	}
@@ -37,7 +36,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase
     {
     	$this->assertSame(
 			4,
-			$customer->getAmountToBorrow(),
+			$this->customer->getAmountToBorrow(),
 			'Basic customer should borrow up to 3 books.'
 		);
     }
