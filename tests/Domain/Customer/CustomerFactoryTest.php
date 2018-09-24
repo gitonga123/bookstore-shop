@@ -27,8 +27,8 @@ class CustomerFactoryTest extends \PHPUnit_Framework_TestCase
 
 
 	/**
-	 * @expectedException \InvalidArgumentException
-	 */
+     * @expectedException \InvalidArgumentException
+     */
 	public function testCreatingWrongTypeOfCustomer()
 	{
 		$customer = CustomerFactory::factory('deluxe', 1, 'han','solo', 'han@solo.com');

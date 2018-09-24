@@ -6,7 +6,6 @@ use Bookstore\Core\Config;
 use Bookstore\Utils\DependencyInjector;
 use Monolog\Logger;
 use Twig_Environment;
-use Twig_Loader_Filesystem;
 use PDO;
 
 abstract class ControllerTestCase extends AbstractTestCase
