@@ -15,7 +15,8 @@ use Bookstore\Models\BookModel;
 use Bookstore\Tests\ControllerTestCase;
 use Twig_Template;
 
-class BookControllerTest extends ControllerTestCase
+
+class BookControllerTest
 {
     private function getController( Request $request = null): BookController
     {
@@ -44,6 +45,6 @@ class BookControllerTest extends ControllerTestCase
 
         $this->assertSame($result, $response, "Reponse object is not the expected one.");
     }
-    
+
 
 }

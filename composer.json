@@ -19,7 +19,7 @@
     },
     "autoload": {
     	"psr-4": {
-    		"Bookstore\\Tests\\": "tests",
+			"Bookstore\\Tests\\": "tests",
     		"Bookstore\\": "src"
     	}
     }
