@@ -7,6 +7,7 @@ use Bookstore\Core\Request;
 use Bookstore\Controllers\AbstractController;
 use Bookstore\Core\Config;
 use Bookstore\Utils\DependencyInjector;
+use Bookstore\Controllers\BookController;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -49,3 +50,5 @@ $di->set('PDO', $db);
 $di->set('Utils\Config', $config);
 $di->set('Twig_Environment', $view);
 $di->set('Logger', $log);
+
+$di->set('BookModel', new BookModel($di->get('PDO')));
