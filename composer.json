@@ -15,12 +15,14 @@
 	},
     "require": {
         "monolog/monolog": "^1.23",
-        "twig/twig": "^2.5"
+        "twig/twig": "^2.5",
+		    "guzzlehttp/guzzle": "^6.3"
     },
     "autoload": {
     	"psr-4": {
-			"Bookstore\\Tests\\": "tests",
-    		"Bookstore\\": "src"
+			  "Bookstore\\Tests\\": "tests",
+    		"Bookstore\\": "src",
+        "TwitterApp\\": "src"
     	}
     }
 }
