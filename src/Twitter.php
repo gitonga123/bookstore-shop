@@ -27,4 +27,25 @@ class Twitter
     {
         return [];
     }
+
+    private function requestAccessToken()
+    {
+        $encodedString = base64_encode($this->key. ":" . $this->secret);
+        $headers = [
+            'Authorization' => 'Basic '. $encodedString,
+            'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8'
+        ];
+
+        $options = [
+            'headers' => $headers,
+            'body' => 'grant_type=client_credentials'
+        ];
+
+        $reponse = $this->client->post(self::OAUTH_ENDPOINT, $options);
+        $body = json_encode($reponse->getBody(), true);
+
+        $this->accessToken = $body['access_token'];
+    }
+
+    
 }
