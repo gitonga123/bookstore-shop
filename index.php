@@ -58,3 +58,9 @@ require_once __DIR__.'/vendor/autoload.php';
 $input_array = array("first" => 1, "seCond" => 2);
 var_dump(array_change_key_case($input_array, CASE_UPPER));
 var_dump(array_change_key_case($input_array, CASE_LOWER));
+
+// Array Chunck // splits array into chunks
+
+$input_array_c = array("a","b","c","d","e");
+print_r(array_chunk($input_array_c, 2));
+print_r(array_chunk($input_array_c, 2, true));
