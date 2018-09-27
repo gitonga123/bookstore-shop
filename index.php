@@ -56,4 +56,5 @@ require_once __DIR__.'/vendor/autoload.php';
 // Array_change_key_case
 
 $input_array = array("first" => 1, "seCond" => 2);
-var_dump(array_change_key_case($input_array));
+var_dump(array_change_key_case($input_array, CASE_UPPER));
+var_dump(array_change_key_case($input_array, CASE_LOWER));
