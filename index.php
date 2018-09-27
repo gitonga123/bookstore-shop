@@ -52,3 +52,8 @@ require_once __DIR__.'/vendor/autoload.php';
 // $di->set('Logger', $log);
 
 // $di->set('BookModel', new BookModel($di->get('PDO')));
+
+// Array_change_key_case
+
+$input_array = array("first" => 1, "seCond" => 2);
+var_dump(array_change_key_case($input_array));
