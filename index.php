@@ -97,3 +97,9 @@ $records = array(
 
 var_dump(array_column($records, 'first_name'));
 var_dump(array_column($records, 'last_name', 'id'));
+
+//Array Combine - Creates an array by using on array for kesy and others for its values
+$array_c_1 = array('green', 'red', 'yellow');
+$array_c_2 = array('avocado', 'apple', 'banana');
+
+var_dump(array_combine($array_c_1, $array_c_2));
