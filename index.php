@@ -70,3 +70,30 @@ $input_array_s = array("a","b","c","d","e", "f");
 var_dump(array_slice($input_array_s, 2));
 var_dump(array_slice($input_array_s, -2, 1));
 var_dump(array_slice($input_array_s, 0, 3));
+
+//Array Column - Returns the values from a single column in the input array
+$records = array(
+    array(
+        'id' => 2135,
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+    ),
+    array(
+        'id' => 3245,
+        'first_name' => 'Sally',
+        'last_name' => 'Smith',
+    ),
+    array(
+        'id' => 5342,
+        'first_name' => 'Jane',
+        'last_name' => 'Jones',
+    ),
+    array(
+        'id' => 5623,
+        'first_name' => 'Peter',
+        'last_name' => 'Doe',
+    )
+);
+
+var_dump(array_column($records, 'first_name'));
+var_dump(array_column($records, 'last_name', 'id'));
