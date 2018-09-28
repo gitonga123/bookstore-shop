@@ -62,5 +62,11 @@ var_dump(array_change_key_case($input_array, CASE_LOWER));
 // Array Chunck // splits array into chunks
 
 $input_array_c = array("a","b","c","d","e");
-print_r(array_chunk($input_array_c, 2));
-print_r(array_chunk($input_array_c, 2, true));
+var_dump(array_chunk($input_array_c, 2));
+var_dump(array_chunk($input_array_c, 2, true));
+
+//Array Slice EXTRACT A SLICE OF THE ARRAY
+$input_array_s = array("a","b","c","d","e", "f");
+var_dump(array_slice($input_array_s, 2));
+var_dump(array_slice($input_array_s, -2, 1));
+var_dump(array_slice($input_array_s, 0, 3));
